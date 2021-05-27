@@ -32,6 +32,7 @@ typedef struct LISTE {
 // Prototypes de fonctions :
 
 void ajouter_element_liste(LISTE* liste, FICHIER* fichier);
+void ajouter_element_liste_milieu(LISTE* liste, FICHIER*  fichier, int position);
 LISTE* creer_liste_vide();
 
 FICHIER* creer_fichier(char* nom);// a rajouter mais pas besoin pour test, DATE date)

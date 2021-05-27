@@ -24,6 +24,52 @@ void ajouter_element_liste(LISTE* liste, FICHIER* fichier)
 	liste->taille++;
 
 }
+void ajouter_element_liste_milieu(LISTE* liste, FICHIER*  fichier, int position)
+{
+	ELEMENT* element = liste->deb_liste;
+	int fin_liste = 0;
+	LISTE* liste_tampon = creer_liste_vide();
+	
+	//regarder si la position correspond au début de la liste ou non
+	if(position == 0)
+	{
+		ajouter_element_liste(liste, fichier);
+	}
+	else
+	{
+		//Rechercher l'élement avant la position voulue
+		for(int i = 0; i < position - 1; i++)
+		{
+			
+			if(element->suivant == NULL) //s'assurer que la position voulue n'est pas hors de la liste
+			{
+				fin_liste = 1;
+				break;
+			}
+			else
+			{
+				element = element->suivant;
+			}
+		}
+		
+		if(fin_liste)
+		{
+			//arriver à la fin de la liste donc on écrit juste dans la liste tampon vide l'élement
+			ajouter_element_liste(liste_tampon, fichier);
+		}
+		else
+		{
+			//ajouter l'élement au début de la liste tampon qui commence à l'élement de la position voulu
+			liste_tampon->deb_liste = element->suivant;
+			ajouter_element_liste(liste_tampon, fichier);
+		}
+		
+		//ratacher les deux listes ensembles
+		element->suivant = liste_tampon->deb_liste;
+		liste->taille ++;
+	}
+	free(liste_tampon);
+}
 
 void supprimer_element_liste(LISTE* liste, int position)
 {
