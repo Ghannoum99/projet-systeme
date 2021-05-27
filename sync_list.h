@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 typedef struct tm* DATE;
@@ -35,8 +36,9 @@ void ajouter_element_liste(LISTE* liste, FICHIER* fichier);
 void ajouter_element_liste_milieu(LISTE* liste, FICHIER*  fichier, int position);
 LISTE* creer_liste_vide();
 
-FICHIER* creer_fichier(char* nom);// a rajouter mais pas besoin pour test, DATE date)
+FICHIER* creer_fichier(char* nom);//a rajouter mais pas besoin pour mes test, DATE date);
+void supprime_element(ELEMENT* element);
 void supprimer_element_liste(LISTE* liste, int position);
-LISTE faire_changement_liste(LISTE liste, FICHIER fichier);
+void modifier_fichier_liste(LISTE* liste, FICHIER* fichier);
 
 #endif

@@ -44,7 +44,7 @@ void ajouter_element_liste_milieu(LISTE* liste, FICHIER*  fichier, int position)
 			if(element->suivant == NULL) //s'assurer que la position voulue n'est pas hors de la liste
 			{
 				fin_liste = 1;
-				break;
+					break;
 			}
 			else
 			{
@@ -71,6 +71,17 @@ void ajouter_element_liste_milieu(LISTE* liste, FICHIER*  fichier, int position)
 	free(liste_tampon);
 }
 
+void supprime_element(ELEMENT* element)
+{
+	if(element != NULL)
+	{
+		if(element->fichier != NULL)
+		{
+			free(element->fichier);	
+		}
+		free(element);
+	}
+}
 void supprimer_element_liste(LISTE* liste, int position)
 {
 	/*premier de la liste est à la position 0*/
@@ -97,23 +108,45 @@ void supprimer_element_liste(LISTE* liste, int position)
 			element_supprimer = element->suivant;
 			element->suivant = element_supprimer->suivant;
 		}
-		free(element_supprimer);
+		supprime_element(element_supprimer);
 		liste->taille--;
 	}
 }
 
 // Il faudrait ajouter la suppression ensuite
-FICHIER* creer_fichier(char* nom)// a rajouter mais pas besoin pour test, DATE date)
+FICHIER* creer_fichier(char* nom)//a rajouter mais pas besoin pour mes test, DATE date)
 {
 	FICHIER* fichier = NULL;
 	fichier = (FICHIER*) malloc(sizeof(FICHIER));
 	fichier->nom = nom;
 	
-	//element->date = date;
+	//fichier->date = date;
 	
 	return fichier;
 }
 
+void modifier_fichier_liste(LISTE* liste, FICHIER* fichier)
+{
+	ELEMENT* element = liste->deb_liste;
+	int pos = 0;
+	//recherche du fichier dans la liste
+	while(element != NULL && strcmp(fichier->nom, element->fichier->nom))
+	{
+		pos++;
+		element = element->suivant;
+	}
+	
+	if(element == NULL) // le fichier n'existe pas donc on l'ajoute
+	{
+		ajouter_element_liste(liste, fichier);
+	}
+	else //fichier existant donc on le remplace
+	{
+		supprimer_element_liste(liste, pos);
+		ajouter_element_liste_milieu(liste, fichier, pos);
+	}
+	
+}
 /*int main (void)
 {
 	DATE date;
