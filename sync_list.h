@@ -7,9 +7,10 @@
 #include <string.h>
 
 
+#define TAILLE_MAX 100
+
 typedef struct tm* DATE;
 
-	
 // Structure d'un élément d'une liste de fichiers :
 
 typedef struct FICHIER {
@@ -19,7 +20,7 @@ typedef struct FICHIER {
 
 typedef struct ELEMENT ELEMENT;
 struct ELEMENT {
-	FICHIER* fichier;
+	FICHIER fichier;
 	ELEMENT* suivant;
 };
 
@@ -32,13 +33,11 @@ typedef struct LISTE {
 
 // Prototypes de fonctions :
 
-void ajouter_element_liste(LISTE* liste, FICHIER* fichier);
-void ajouter_element_liste_milieu(LISTE* liste, FICHIER*  fichier, int position);
+void ajouter_element_liste(LISTE* liste, FICHIER fichier);
+void ajouter_element_liste_milieu(LISTE* liste, FICHIER fichier, int position);
 LISTE* creer_liste_vide();
 
-FICHIER* creer_fichier(char* nom);//a rajouter mais pas besoin pour mes test, DATE date);
-void supprime_element(ELEMENT* element);
 void supprimer_element_liste(LISTE* liste, int position);
-void modifier_fichier_liste(LISTE* liste, FICHIER* fichier);
+LISTE faire_changement_liste(LISTE liste, FICHIER fichier);
 
 #endif
