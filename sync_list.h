@@ -5,11 +5,14 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 
 #define TAILLE_MAX 100
 
-typedef struct tm* DATE;
+typedef struct tm DATE;
 
 // Structure d'un élément d'une liste de fichiers :
 
@@ -33,10 +36,12 @@ typedef struct LISTE {
 
 // Prototypes de fonctions :
 
+LISTE* creer_liste_vide();
 void ajouter_element_liste(LISTE* liste, FICHIER fichier);
 void ajouter_element_liste_milieu(LISTE* liste, FICHIER fichier, int position);
-LISTE* creer_liste_vide();
+void modifier_element_liste (LISTE* liste, char* nomElement);
 
+void ajouter_nouveau_element_liste (LISTE*, char* nomFichier);
 void supprimer_element_liste(LISTE* liste, int position);
 LISTE faire_changement_liste(LISTE liste, FICHIER fichier);
 
