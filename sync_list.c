@@ -107,7 +107,7 @@ void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier)
 {
 	FICHIER infos;
 	time_t temps;
-	char commande[TAILLE_MAX] = "touch ";
+	char commande[TAILLE_MAX] = "touch ./serveurProd/";
 	
 	strcat(commande, nomFichier);
 	system(commande);
@@ -133,12 +133,10 @@ void lire_fichier (char* nomFichier, LISTE* liste)
 		tampon[strlen(tampon) - 1] = '\0';
 		infos.nom = malloc(strlen(tampon) * sizeof(char));
 		strcpy(infos.nom,tampon);
-		if(strcmp(infos.nom,nomFichier) != 0)
-		{
-			temps = time(NULL);
-			infos.date = *localtime(&temps);
-			ajouter_element_liste(liste,infos);
-		}		
+
+		temps = time(NULL);
+		infos.date = *localtime(&temps);
+		ajouter_element_liste(liste,infos);
 	}
 	
 	fclose(fichier);
@@ -184,10 +182,14 @@ int main (void)
 	pid_t PIDProd, PIDBack;	
 	LISTE* liste = creer_liste_vide();
 	
-	system("touch fichier1.txt");
-	system("touch fichier2.txt");
+	system("mkdir serveurProd");
+	//system("mkdir serveurBack");
+	
+
+	system("touch ./serveurProd/fichier1.txt");
+	system("touch ./serveurProd/fichier2.txt");
 		
-	system("ls > out.txt");
+	system("ls ./serveurProd > out.txt");
 	lire_fichier("out.txt",liste);
 	system("rm out.txt");	
 	
@@ -213,9 +215,7 @@ int main (void)
 		wait(NULL);
 		afficher_liste(*liste);
 		
-		system("rm fichier1.txt");
-		system("rm fichier2.txt");
-		system("rm fichier3.txt");
+		system("rm -r serveurProd");
 	
 		while (liste->taille != 0)
 			supprimer_element_liste(liste,0);
