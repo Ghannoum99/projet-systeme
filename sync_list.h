@@ -12,6 +12,8 @@
 
 #define TAILLE_MAX 100
 
+int tube[2] = {-1,-1};
+
 typedef struct tm DATE;
 
 // Structure d'un élément d'une liste de fichiers :

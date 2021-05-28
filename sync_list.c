@@ -117,6 +117,9 @@ void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier)
 	temps = time(NULL);
 	infos.date = *localtime(&temps);
 	ajouter_element_liste(liste,infos);	
+	
+	write(tube[1], &infos, sizeof(FICHIER));
+
 }
 
 void lire_fichier (char* nomFichier, LISTE* liste)
@@ -143,9 +146,10 @@ void lire_fichier (char* nomFichier, LISTE* liste)
 }
 
 void modifier_element_liste (LISTE* liste, char* nomElement)
-{
+{	
 	ELEMENT* curseur = liste->deb_liste;
 	time_t temps;
+	FICHIER infos;
 	
 	while (strcmp(curseur->fichier.nom, nomElement))
 	{
@@ -158,6 +162,12 @@ void modifier_element_liste (LISTE* liste, char* nomElement)
 	}
 	temps = time(NULL);
 	curseur->fichier.date = *localtime(&temps);
+	
+	infos.date = *localtime(&temps);
+	infos.nom = malloc(strlen(nomElement) * sizeof(char));
+	strcpy(infos.nom,nomElement);
+
+	write(tube[1], &infos, sizeof(FICHIER));
 
 }
 
@@ -181,6 +191,13 @@ int main (void)
 {
 	pid_t PIDProd, PIDBack;	
 	LISTE* liste = creer_liste_vide();
+	FICHIER test;
+	
+	if( pipe(tube) == -1)
+	{
+		perror("Les tubes ont un problème...");
+		exit(EXIT_FAILURE);
+	}
 	
 	system("mkdir serveurProd");
 	//system("mkdir serveurBack");
@@ -203,16 +220,28 @@ int main (void)
 	
 	if (PIDProd == 0)
 	{
+		close(tube[0]);
+		
 		sleep(2);
 		modifier_element_liste (liste, "fichier1.txt");
 		sleep(3);
 		ajouter_nouveau_element_liste(liste, "fichier3.txt");
 		afficher_liste(*liste);
+		
+		close(tube[1]);
 	}
 	
 	else
 	{
+		close(tube[1]);
+		
+		read(tube[0],&test,sizeof(FICHIER));
+		read(tube[0],&test,sizeof(FICHIER));
+		
 		wait(NULL);
+		
+		close(tube[0]);
+		
 		afficher_liste(*liste);
 		
 		system("rm -r serveurProd");
