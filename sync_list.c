@@ -187,6 +187,7 @@ void afficher_liste(LISTE liste)
 	
 }
 
+/*
 int main (void)
 {
 	pid_t PIDProd, PIDBack;	
@@ -252,3 +253,4 @@ int main (void)
 	
 	return 0;
 }
+*/

@@ -47,4 +47,7 @@ void ajouter_nouveau_element_liste (LISTE*, char* nomFichier);
 void supprimer_element_liste(LISTE* liste, int position);
 LISTE faire_changement_liste(LISTE liste, FICHIER fichier);
 
+void lire_fichier (char* nomFichier, LISTE* liste);
+void afficher_liste(LISTE liste);
+
 #endif
