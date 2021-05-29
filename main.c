@@ -8,14 +8,14 @@
 #include "test_server.h"
 #include "sync_list.h"
 
-sem_t sem;
-
-char estDispoProd = '\0', estDispoBackup = '\0';
+serveur servIntegr, servProd, servBackup;
 
 //main = servIntegr
 //fils = servProd / servBackup
 int main(int argc, char* argv[]) {
-	pid_t servProd, servBackup;
+	initialiser_serveur(&servIntegr, "servIntegr");
+	initialiser_serveur(&servProd, "servProd");
+	initialiser_serveur(&servBackup, "servBackup");
 	
 	/*
 	 * Code du main de "sync_list.c"
@@ -40,45 +40,49 @@ int main(int argc, char* argv[]) {
 	 * Fin du code du main de "sync_list.c"
 	 */	
 	
-	servProd = fork();
+	servProd.pidServ = fork();
 	
-	switch(servProd) {
+	switch(servProd.pidServ) {
 		case -1 : //échec du fork
 			perror("Échec fork");
 			exit(EXIT_FAILURE);
 			break;
 			
 		case 0 : //code du serveur de production
-			printf("[servProd] PID <%d>, PPID <%d>\n", getpid(), getppid());
+			printf("[%s] PID <%d>, PPID <%d>\n", servProd.nomServ, getpid(), getppid());
+			verrouiller_serveur(&servProd);
+			
 			break;
 			
 		default :
-			servBackup = fork();
+			servBackup.pidServ = fork();
 			
-			switch(servBackup) {
+			switch(servBackup.pidServ) {
 				case -1 : //échec du fork
 					perror("Échec fork");
 					exit(EXIT_FAILURE);
 					break;
 			
 				case 0 : //code du serveur de backup
-					printf("[servBackup] PID <%d>, PPID <%d>\n", getpid(), getppid());
+					printf("[%s] PID <%d>, PPID <%d>\n", servBackup.nomServ, getpid(), getppid());
+					verrouiller_serveur(&servBackup);
 					break;
 				
 				default : //code du serveur d'intégration
-					printf("[servIntegr] PID <%d>, PPID <%d>\n", getpid(), getppid());
-					estDispoBackup = tester_disponibilite_serveur(servBackup);
-					//~ estDispoProd = tester_disponibilite_serveur(servProd);
-					printf("[servIntegr] estDispoBackup %c estDispoProd %c\n", estDispoBackup, estDispoProd);
 					
-					wait(NULL);
+					printf("[%s] PID <%d>, PPID <%d>\n", servIntegr.nomServ, getpid(), getppid());
+					
+					deverrouiller_serveur(&servBackup);
+					afficher_etat_serveur(servProd);
+					afficher_etat_serveur(servBackup);
+					
 					break;
 			}
 			
 			break;
 	}
 	
-	printf("\n*** Fin du process <%d> ***\n",getpid());
+	printf("*** Fin du process <%d> ***\n",getpid());
 	sleep(1);
 	
 	return EXIT_SUCCESS;	
