@@ -215,8 +215,8 @@ int main (void)
 	
 	PIDProd = fork();
 	
-	/*if (PIDProd != 0)
-		PIDBack = fork();*/ // Pas bseoin pour le moment
+	if (PIDProd != 0)
+		PIDBack = fork(); // Pas bseoin pour le moment
 		
 	
 	if (PIDProd == 0)

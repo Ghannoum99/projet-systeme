@@ -5,8 +5,10 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <semaphore.h>
-#include "test_server.h"
+
 #include "sync_list.h"
+#include "test_server.h"
+
 
 serveur servIntegr, servProd, servBackup;
 
@@ -17,28 +19,27 @@ int main(int argc, char* argv[]) {
 	initialiser_serveur(&servProd, "servProd");
 	initialiser_serveur(&servBackup, "servBackup");
 	
-	/*
-	 * Code du main de "sync_list.c"
-	 */
-	/*
 	LISTE* liste = creer_liste_vide();
+	FICHIER infos;
 	
-	creer_liste_vide(liste);
+	if( pipe(tube) == -1)
+	{
+		perror("Les tubes ont un problème...");
+		exit(EXIT_FAILURE);
+	}
+	
+	system("mkdir serveurProd");
+	//system("mkdir serveurBack");
+	
+
+	system("touch ./serveurProd/fichier1.txt");
+	system("touch ./serveurProd/fichier2.txt");
 		
-	system("ls > out.txt");
+	system("ls ./serveurProd > out.txt");
 	lire_fichier("out.txt",liste);
 	system("rm out.txt");	
 	
 	afficher_liste(*liste);
-	
-	while (liste->taille != 0)
-		supprimer_element_liste(liste,0);
-		
-	free(liste);
-	*/
-	/*
-	 * Fin du code du main de "sync_list.c"
-	 */	
 	
 	servProd.pidServ = fork();
 	
@@ -49,8 +50,20 @@ int main(int argc, char* argv[]) {
 			break;
 			
 		case 0 : //code du serveur de production
-			printf("[%s] PID <%d>, PPID <%d>\n", servProd.nomServ, getpid(), getppid());
+			close(tube[0]);
+			
 			verrouiller_serveur(&servProd);
+			printf("[%s] PID <%d>, PPID <%d>\n", servProd.nomServ, getpid(), getppid());
+			
+		
+			sleep(2);
+			modifier_element_liste (liste, "fichier1.txt");
+			sleep(3);
+			ajouter_nouveau_element_liste(liste, "fichier3.txt");
+			afficher_liste(*liste);
+			
+			close(tube[1]);
+			
 			
 			break;
 			
@@ -75,6 +88,26 @@ int main(int argc, char* argv[]) {
 					deverrouiller_serveur(&servBackup);
 					afficher_etat_serveur(servProd);
 					afficher_etat_serveur(servBackup);
+					
+					close(tube[1]);
+					
+					read(tube[0],&infos,sizeof(FICHIER));
+					read(tube[0],&infos,sizeof(FICHIER));
+										
+					close(tube[0]);
+					
+					afficher_liste(*liste);
+					
+					system("rm -r serveurProd");
+					
+					
+					while (liste->taille != 0)
+						supprimer_element_liste(liste,0);
+		
+					free(liste);
+					
+					wait(&servProd.pidServ);
+					wait(&servBackup.pidServ);
 					
 					break;
 			}

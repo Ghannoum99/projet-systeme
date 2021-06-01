@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <semaphore.h>
+
 #include "test_server.h"
 
 extern serveur servIntegr, servProd, servBackup;

@@ -12,7 +12,7 @@
 
 #define TAILLE_MAX 100
 
-int tube[2] = {-1,-1};
+int tube[2];
 
 typedef struct tm DATE;
 
