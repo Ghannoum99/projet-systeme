@@ -9,7 +9,6 @@
 #include "sync_list.h"
 #include "test_server.h"
 
-
 serveur servIntegr, servProd, servBackup;
 
 //main = servIntegr
@@ -19,14 +18,17 @@ int main(int argc, char* argv[]) {
 	initialiser_serveur(&servProd, "servProd");
 	initialiser_serveur(&servBackup, "servBackup");
 	
+	
 	LISTE* liste = creer_liste_vide();
 	FICHIER infos;
 	
+	 
 	if( pipe(tube) == -1)
 	{
 		perror("Les tubes ont un problème...");
 		exit(EXIT_FAILURE);
 	}
+	
 	
 	system("mkdir serveurProd");
 	//system("mkdir serveurBack");
@@ -41,6 +43,7 @@ int main(int argc, char* argv[]) {
 	
 	afficher_liste(*liste);
 	
+	
 	servProd.pidServ = fork();
 	
 	switch(servProd.pidServ) {
@@ -50,12 +53,10 @@ int main(int argc, char* argv[]) {
 			break;
 			
 		case 0 : //code du serveur de production
-			close(tube[0]);
-			
-			verrouiller_serveur(&servProd);
 			printf("[%s] PID <%d>, PPID <%d>\n", servProd.nomServ, getpid(), getppid());
 			
-		
+			
+			close(tube[0]);
 			sleep(2);
 			modifier_element_liste (liste, "fichier1.txt");
 			sleep(3);
@@ -78,16 +79,19 @@ int main(int argc, char* argv[]) {
 			
 				case 0 : //code du serveur de backup
 					printf("[%s] PID <%d>, PPID <%d>\n", servBackup.nomServ, getpid(), getppid());
-					verrouiller_serveur(&servBackup);
 					break;
 				
 				default : //code du serveur d'intégration
-					
 					printf("[%s] PID <%d>, PPID <%d>\n", servIntegr.nomServ, getpid(), getppid());
+
+					//~ pthread_create(&(servBackup.threads[0]),NULL,verrouiller_serveur,(void*) &servBackup);
+					pthread_create(&(servBackup.threads[1]),NULL,deverrouiller_serveur,(void*) &servBackup);
 					
-					deverrouiller_serveur(&servBackup);
-					afficher_etat_serveur(servProd);
+					//~ pthread_join(servBackup.threads[0],NULL);
+					pthread_join(servBackup.threads[1],NULL);
+					
 					afficher_etat_serveur(servBackup);
+					
 					
 					close(tube[1]);
 					
@@ -105,6 +109,7 @@ int main(int argc, char* argv[]) {
 						supprimer_element_liste(liste,0);
 		
 					free(liste);
+					
 					
 					wait(&servProd.pidServ);
 					wait(&servBackup.pidServ);

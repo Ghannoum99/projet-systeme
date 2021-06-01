@@ -5,13 +5,14 @@
 #define V(s) sem_post(s)
 
 #define TAILLE_TAMPON 100
-#define TAILLE_NOM_SERV 20
+#define LONGUEUR_NOM_SERV 20
 
 typedef enum {pasDispo, dispo} etat;
 
 typedef struct {
 	pid_t pidServ;
 	pthread_mutex_t mutexServ;
+	pthread_t threads[2]; //threads[0]=principal threads[1]=changer la disponibilité
 	etat etatServ;
 	char* nomServ;
 } serveur;
@@ -19,8 +20,8 @@ typedef struct {
 char tester_disponibilite_serveur(pid_t servATester);
 
 void initialiser_serveur(serveur* serv, char* nomServ);
-void verrouiller_serveur(serveur* serv);
-void deverrouiller_serveur(serveur* serv);
+void* verrouiller_serveur(void* serv);
+void* deverrouiller_serveur(void* serv);
 void afficher_etat_serveur(serveur serv);
 
 #endif

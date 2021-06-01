@@ -36,20 +36,27 @@ char tester_disponibilite_serveur(pid_t servATester) {
 }
 
 void initialiser_serveur(serveur* serv, char* nomServ) {
-	serv->etatServ = pasDispo;
+	//~ serv->etatServ = dispo;
 	pthread_mutex_lock(&(serv->mutexServ));
-	serv->nomServ = malloc(sizeof(char) * TAILLE_NOM_SERV);
+	serv->nomServ = malloc(sizeof(char) * LONGUEUR_NOM_SERV);
 	strcpy(serv->nomServ, nomServ);
 }
 
-void verrouiller_serveur(serveur* serv) {
-	serv->etatServ = pasDispo;
-	pthread_mutex_lock(&(serv->mutexServ));
+void* verrouiller_serveur(void* serv) {
+	printf("Verrouillage %s\n", ((serveur*) serv)->nomServ);
+	((serveur*) serv)->etatServ = pasDispo;
+	pthread_mutex_lock(  &(((serveur*)serv)->mutexServ) );
+	
+	return NULL;
 }
 
-void deverrouiller_serveur(serveur* serv) {
-	pthread_mutex_unlock(&(serv->mutexServ));
-	serv->etatServ = dispo;
+void* deverrouiller_serveur(void* serv) {
+	pthread_mutex_unlock( &(((serveur*)serv)->mutexServ) );
+	printf("Déverrouillage %s\n", ((serveur*) serv)->nomServ);
+	((serveur*) serv)->etatServ = dispo;
+	printf("%d dans déver\n", ((serveur*) serv)->etatServ );
+	
+	return NULL;
 }
 
 void afficher_etat_serveur(serveur serv) {
