@@ -4,7 +4,7 @@
 void copier_liste(LISTE* liste)
 {
 	char commande[TAILLE_MAX] = "";
-	char* nomRep = " ./serveurProd";
+	char* nomRep = " ./serveurBack";
 	char* nomFichier;
 	ELEMENT* element;
 	FICHIER fichier;
@@ -18,7 +18,7 @@ void copier_liste(LISTE* liste)
 		fichier = element->fichier;
 		nomFichier = fichier.nom;
 		
-		strcat(commande,"./nov_serveur/");
+		strcat(commande,"./serveurProd/");
 		strcat(commande, nomFichier);
 		strcat(commande, nomRep);
 		
@@ -34,23 +34,35 @@ void copier_liste(LISTE* liste)
 
 
 
-int main (void)
+/*int main (void)
 {
 
 	LISTE* liste = creer_liste_vide();
 
 	
-	//system("mkdir serveurProd");
-		
-	system("ls ./nov_serveur > out.txt");
-	lire_fichier("out.txt",liste);
-	system("rm out.txt");
+	system("mkdir serveurProd");
+	system("mkdir serveurBack");
 	
+
+	system("touch ./serveurProd/fichier1.txt");
+	system("touch ./serveurProd/fichier2.txt");
+		
+	system("ls ./serveurProd > out.txt");
+	lire_fichier("out.txt",liste);
+	system("rm out.txt");	
+		
 	afficher_liste(*liste);
 	
 	copier_liste(liste);
 	
+	afficher_liste(*liste);
 	
+	system("ls -l ./serveurProd");
+	system("ls -l ./serveurBack");
+	
+	system("rm -r serveurProd");
+	system("rm -r serveurBack");
+		
 	
 	return 0;
-}
+}*/

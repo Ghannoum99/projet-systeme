@@ -1,0 +1,5 @@
+5,0,Wed Jun  2 15:51:29 2021
+
+Nombre de fichiers reçus,
+Nombre d'erreurs recontrées,
+Date de la derniere modification

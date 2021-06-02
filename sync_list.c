@@ -1,4 +1,6 @@
 #include "sync_list.h"
+#include "log_stats.h"
+#include "copy_list.h"
 
 
 LISTE* creer_liste_vide()
@@ -187,7 +189,7 @@ void afficher_liste(LISTE liste)
 	
 }
 
-/*
+
 int main (void)
 {
 	pid_t PIDProd, PIDBack;	
@@ -201,7 +203,7 @@ int main (void)
 	}
 	
 	system("mkdir serveurProd");
-	//system("mkdir serveurBack");
+	system("mkdir serveurBack");
 	
 
 	system("touch ./serveurProd/fichier1.txt");
@@ -215,8 +217,8 @@ int main (void)
 	
 	PIDProd = fork();
 	
-	if (PIDProd != 0)
-		PIDBack = fork(); // Pas bseoin pour le moment
+	//if (PIDProd != 0)
+		//PIDBack = fork(); // Pas bseoin pour le moment
 		
 	
 	if (PIDProd == 0)
@@ -224,11 +226,19 @@ int main (void)
 		close(tube[0]);
 		
 		sleep(2);
-		modifier_element_liste (liste, "fichier1.txt");
-		sleep(3);
-		ajouter_nouveau_element_liste(liste, "fichier3.txt");
-		afficher_liste(*liste);
 		
+		system("touch ./serveurProd/fichier1.txt");
+		modifier_element_liste (liste, "fichier1.txt");
+		ecrire_log("sync_list","Modification de fichier1.txt");
+		
+		sleep(3);
+		
+		system("touch ./serveurProd/fichier3.txt");
+		ajouter_nouveau_element_liste(liste, "fichier3.txt");
+		ecrire_log("sync_list","Ajout de fichier3.txt");
+		
+		afficher_liste(*liste);
+				
 		close(tube[1]);
 	}
 	
@@ -239,13 +249,20 @@ int main (void)
 		read(tube[0],&test,sizeof(FICHIER));
 		read(tube[0],&test,sizeof(FICHIER));
 		
+		copier_liste(liste);
+		statistiques_module("copy_list",FICHIER_RECU);
+		
 		wait(NULL);
 		
 		close(tube[0]);
 		
-		afficher_liste(*liste);
+		//afficher_liste(*liste);
+					
+		system("ls -l ./serveurProd");
+		system("ls -l ./serveurBack");
 		
 		system("rm -r serveurProd");
+		system("rm -r serveurBack");
 	
 		while (liste->taille != 0)
 			supprimer_element_liste(liste,0);
@@ -253,4 +270,4 @@ int main (void)
 	
 	return 0;
 }
-*/
+

@@ -1,11 +1,13 @@
-#ifndef  COPY_LIST_H
+#ifndef COPY_LIST_H
 #define COPY_LIST_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <conio.h>
+//#include <conio.h>
+
+#include "sync_list.h"
 
 
 
