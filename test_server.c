@@ -54,16 +54,15 @@ void* deverrouiller_serveur(void* serv) {
 	pthread_mutex_unlock( &(((serveur*)serv)->mutexServ) );
 	printf("Déverrouillage %s\n", ((serveur*) serv)->nomServ);
 	((serveur*) serv)->etatServ = dispo;
-	printf("%d dans déver\n", ((serveur*) serv)->etatServ );
 	
 	return NULL;
 }
 
 void afficher_etat_serveur(serveur serv) {
 	if (serv.etatServ == dispo) {
-		printf("%s PID %ld etatServ %d -> disponible\n", serv.nomServ, (long) serv.pidServ, serv.etatServ);
+		printf("%s | PID %4ld | etatServ %d -> disponible\n", serv.nomServ, (long) serv.pidServ, serv.etatServ);
 	}
 	else {
-		printf("%s PID %ld etatServ %d -> non disponible\n", serv.nomServ, (long) serv.pidServ, serv.etatServ);
+		printf("%s | PID %4ld | etatServ %d -> non disponible\n", serv.nomServ, (long) serv.pidServ, serv.etatServ);
 	}
 }

@@ -18,7 +18,8 @@ int main(int argc, char* argv[]) {
 	initialiser_serveur(&servProd, "servProd");
 	initialiser_serveur(&servBackup, "servBackup");
 	
-	
+					
+	/*
 	LISTE* liste = creer_liste_vide();
 	FICHIER infos;
 	
@@ -42,7 +43,7 @@ int main(int argc, char* argv[]) {
 	system("rm out.txt");	
 	
 	afficher_liste(*liste);
-	
+	*/
 	
 	servProd.pidServ = fork();
 	
@@ -55,7 +56,7 @@ int main(int argc, char* argv[]) {
 		case 0 : //code du serveur de production
 			printf("[%s] PID <%d>, PPID <%d>\n", servProd.nomServ, getpid(), getppid());
 			
-			
+			/*
 			close(tube[0]);
 			sleep(2);
 			modifier_element_liste (liste, "fichier1.txt");
@@ -64,7 +65,7 @@ int main(int argc, char* argv[]) {
 			afficher_liste(*liste);
 			
 			close(tube[1]);
-			
+			*/
 			
 			break;
 			
@@ -84,15 +85,16 @@ int main(int argc, char* argv[]) {
 				default : //code du serveur d'intégration
 					printf("[%s] PID <%d>, PPID <%d>\n", servIntegr.nomServ, getpid(), getppid());
 
-					//~ pthread_create(&(servBackup.threads[0]),NULL,verrouiller_serveur,(void*) &servBackup);
 					pthread_create(&(servBackup.threads[1]),NULL,deverrouiller_serveur,(void*) &servBackup);
-					
-					//~ pthread_join(servBackup.threads[0],NULL);
+					pthread_join(servIntegr.threads[1],NULL);
+
+					pthread_create(&(servIntegr.threads[1]),NULL,verrouiller_serveur,(void*) &servIntegr);
 					pthread_join(servBackup.threads[1],NULL);
 					
 					afficher_etat_serveur(servBackup);
+					afficher_etat_serveur(servIntegr);
 					
-					
+					/*					
 					close(tube[1]);
 					
 					read(tube[0],&infos,sizeof(FICHIER));
@@ -109,7 +111,7 @@ int main(int argc, char* argv[]) {
 						supprimer_element_liste(liste,0);
 		
 					free(liste);
-					
+					*/
 					
 					wait(&servProd.pidServ);
 					wait(&servBackup.pidServ);
