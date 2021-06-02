@@ -105,22 +105,25 @@ void supprimer_element_liste(LISTE* liste, int position)
 	}
 }
 
-void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier)
+void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomServeur)
 {
-	FICHIER infos;
+	FICHIER fichier;
+	INFOCHANGE infos;
 	time_t temps;
 	char commande[TAILLE_MAX] = "touch ./serveurProd/";
 	
 	strcat(commande, nomFichier);
 	system(commande);
 	
-	infos.nom = malloc(strlen(nomFichier) * sizeof(char));
-	strcpy(infos.nom,nomFichier);
+	fichier.nom = malloc(strlen(nomFichier) * sizeof(char));
+	strcpy(fichier.nom,nomFichier);
 	temps = time(NULL);
-	infos.date = *localtime(&temps);
-	ajouter_element_liste(liste,infos);	
+	fichier.date = *localtime(&temps);
+	ajouter_element_liste(liste,fichier);	
 	
-	write(tube[1], &infos, sizeof(FICHIER));
+	infos.fichier = fichier;
+	infos.nom_serveur = nomServeur;
+	write(tube[1], &infos, sizeof(INFOCHANGE));
 
 }
 
@@ -147,12 +150,12 @@ void lire_fichier (char* nomFichier, LISTE* liste)
 	fclose(fichier);
 }
 
-void modifier_element_liste (LISTE* liste, char* nomElement)
+void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur)
 {	
 	ELEMENT* curseur = liste->deb_liste;
 	time_t temps;
-	FICHIER infos;
-	
+	FICHIER fichier;
+	INFOCHANGE infos;
 	while (strcmp(curseur->fichier.nom, nomElement))
 	{
 		curseur = curseur->suivant;
@@ -165,12 +168,36 @@ void modifier_element_liste (LISTE* liste, char* nomElement)
 	temps = time(NULL);
 	curseur->fichier.date = *localtime(&temps);
 	
-	infos.date = *localtime(&temps);
-	infos.nom = malloc(strlen(nomElement) * sizeof(char));
-	strcpy(infos.nom,nomElement);
+	fichier.date = *localtime(&temps);
+	fichier.nom = malloc(strlen(nomElement) * sizeof(char));
+	strcpy(fichier.nom,nomElement);
+	
+	infos.fichier = fichier;
+	infos.nom_serveur = nomServeur;
+	write(tube[1], &infos, sizeof(INFOCHANGE));
 
-	write(tube[1], &infos, sizeof(FICHIER));
-
+}
+void modifier_fichier_liste(LISTE* liste, FICHIER fichier)
+{
+	ELEMENT* element = liste->deb_liste;
+	int pos = 0;
+	
+	//recherche du fichier dans la liste
+	while(element != NULL && strcmp(fichier.nom, element->fichier.nom))
+	{
+		pos++;
+		element = element->suivant;
+	}
+	
+	if(element == NULL)// le fichier n'existe pas donc on l'ajoute
+	{
+		ajouter_element_liste(liste, fichier);
+	}
+	else // fichier existant donc on le remplace
+	{
+		supprimer_element_liste(liste,pos);
+		ajouter_element_liste_milieu(liste, fichier,pos);
+	}
 }
 
 void afficher_liste(LISTE liste)
@@ -196,7 +223,7 @@ int main (void)
 	LISTE* liste = creer_liste_vide();
 	FICHIER test;
 	
-	if( pipe(tube) == -1)
+	if( pipe(tube) == -1 || pipe(tube_changement) == -1)
 	{
 		perror("Les tubes ont un problème...");
 		exit(EXIT_FAILURE);
@@ -217,8 +244,8 @@ int main (void)
 	
 	PIDProd = fork();
 	
-	//if (PIDProd != 0)
-		//PIDBack = fork(); // Pas bseoin pour le moment
+	if (PIDProd != 0)
+		PIDBack = fork(); 
 		
 	
 	if (PIDProd == 0)
@@ -228,26 +255,48 @@ int main (void)
 		sleep(2);
 		
 		system("touch ./serveurProd/fichier1.txt");
-		modifier_element_liste (liste, "fichier1.txt");
+		modifier_element_liste (liste, "fichier1.txt", "ServProd");
 		ecrire_log("sync_list","Modification de fichier1.txt");
 		
 		sleep(3);
 		
 		system("touch ./serveurProd/fichier3.txt");
-		ajouter_nouveau_element_liste(liste, "fichier3.txt");
+		ajouter_nouveau_element_liste(liste, "fichier3.txt","ServProd");
 		ecrire_log("sync_list","Ajout de fichier3.txt");
 		
 		afficher_liste(*liste);
 				
 		close(tube[1]);
 	}
-	
+	else if(PIDBack == 0)
+	{
+		close(tube_changement[1]);
+		
+		for(int i = 0; i < 2; i++)
+		{
+			read(tube_changement[0],&test,sizeof(FICHIER));
+			modifier_fichier_liste(liste, test);
+		}
+		
+		close(tube_changement[0]);
+	}
 	else
 	{
 		close(tube[1]);
+		close(tube_changement[0]);
+		LISTE* liste_changement = creer_liste_vide();
+		INFOCHANGE infos;
 		
-		read(tube[0],&test,sizeof(FICHIER));
-		read(tube[0],&test,sizeof(FICHIER));
+		for(int i = 0; i < 2; i++)
+		{
+			read(tube[0],&infos,sizeof(INFOCHANGE));
+			modifier_fichier_liste(liste, infos.fichier);
+			modifier_fichier_liste(liste_changement, infos.fichier);
+			if(!strcmp(infos.nom_serveur, "ServProd"))
+			{
+				write(tube_changement[1], &infos.fichier, sizeof(FICHIER));	
+			}
+		}
 		
 		copier_liste(liste);
 		statistiques_module("copy_list",FICHIER_RECU);
@@ -255,6 +304,7 @@ int main (void)
 		wait(NULL);
 		
 		close(tube[0]);
+		close(tube_changement[1]);
 		
 		//afficher_liste(*liste);
 					
