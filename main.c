@@ -55,6 +55,9 @@ int main(int argc, char* argv[]) {
 			
 		case 0 : //code du serveur de production
 			printf("[%s] PID <%d>, PPID <%d>\n", servProd.nomServ, getpid(), getppid());
+								
+			//~ pthread_create(&(servProd.threads[1]),NULL,verrouiller_serveur,(void*) &servProd);
+			//~ pthread_join(servProd.threads[1],NULL);
 			
 			/*
 			close(tube[0]);
@@ -80,19 +83,19 @@ int main(int argc, char* argv[]) {
 			
 				case 0 : //code du serveur de backup
 					printf("[%s] PID <%d>, PPID <%d>\n", servBackup.nomServ, getpid(), getppid());
+					
+					pthread_create(&(servBackup.threads[1]),NULL,verrouiller_serveur,(void*) &servBackup);
+					pthread_join(servBackup.threads[1],NULL);
+					
+					
 					break;
 				
 				default : //code du serveur d'intégration
 					printf("[%s] PID <%d>, PPID <%d>\n", servIntegr.nomServ, getpid(), getppid());
-
-					pthread_create(&(servBackup.threads[1]),NULL,deverrouiller_serveur,(void*) &servBackup);
-					pthread_join(servIntegr.threads[1],NULL);
-
-					pthread_create(&(servIntegr.threads[1]),NULL,verrouiller_serveur,(void*) &servIntegr);
-					pthread_join(servBackup.threads[1],NULL);
 					
-					afficher_etat_serveur(servBackup);
-					afficher_etat_serveur(servIntegr);
+					
+					//~ afficher_etat_serveur(servBackup);
+					//~ afficher_etat_serveur(servIntegr);
 					
 					/*					
 					close(tube[1]);
@@ -112,6 +115,8 @@ int main(int argc, char* argv[]) {
 		
 					free(liste);
 					*/
+					
+					
 					
 					wait(&servProd.pidServ);
 					wait(&servBackup.pidServ);

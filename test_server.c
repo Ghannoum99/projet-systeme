@@ -36,7 +36,7 @@ char tester_disponibilite_serveur(pid_t servATester) {
 }
 
 void initialiser_serveur(serveur* serv, char* nomServ) {
-	//~ serv->etatServ = dispo;
+	serv->etatServ = dispo;
 	pthread_mutex_lock(&(serv->mutexServ));
 	serv->nomServ = malloc(sizeof(char) * LONGUEUR_NOM_SERV);
 	strcpy(serv->nomServ, nomServ);
@@ -45,13 +45,13 @@ void initialiser_serveur(serveur* serv, char* nomServ) {
 void* verrouiller_serveur(void* serv) {
 	printf("Verrouillage %s\n", ((serveur*) serv)->nomServ);
 	((serveur*) serv)->etatServ = pasDispo;
-	pthread_mutex_lock(  &(((serveur*)serv)->mutexServ) );
+	pthread_mutex_lock(  &( ((serveur*)serv)->mutexServ) );
 	
 	return NULL;
 }
 
 void* deverrouiller_serveur(void* serv) {
-	pthread_mutex_unlock( &(((serveur*)serv)->mutexServ) );
+	pthread_mutex_unlock( &( ((serveur*)serv)->mutexServ) );
 	printf("Déverrouillage %s\n", ((serveur*) serv)->nomServ);
 	((serveur*) serv)->etatServ = dispo;
 	
@@ -60,9 +60,9 @@ void* deverrouiller_serveur(void* serv) {
 
 void afficher_etat_serveur(serveur serv) {
 	if (serv.etatServ == dispo) {
-		printf("%s | PID %4ld | etatServ %d -> disponible\n", serv.nomServ, (long) serv.pidServ, serv.etatServ);
+		printf("Infos : %s | PID %4ld | etatServ %d -> disponible\n", serv.nomServ, (long) serv.pidServ, serv.etatServ);
 	}
 	else {
-		printf("%s | PID %4ld | etatServ %d -> non disponible\n", serv.nomServ, (long) serv.pidServ, serv.etatServ);
+		printf("Infos : %s | PID %4ld | etatServ %d -> non disponible\n", serv.nomServ, (long) serv.pidServ, serv.etatServ);
 	}
 }
