@@ -9,6 +9,8 @@
 
 #include "test_server.h"
 
+#define TAILLE_MAX 100
+
 extern serveur servIntegr, servProd, servBackup;
 
 //pas sûr que cette fonction serve mais je laisse
@@ -36,10 +38,17 @@ char tester_disponibilite_serveur(pid_t servATester) {
 }
 
 void initialiser_serveur(serveur* serv, char* nomServ) {
+	char creerDossier[TAILLE_MAX] = "mkdir ";
+	
+	strcat(creerDossier,nomServ);
+
 	serv->etatServ = dispo;
 	pthread_mutex_lock(&(serv->mutexServ));
 	serv->nomServ = malloc(sizeof(char) * LONGUEUR_NOM_SERV);
 	strcpy(serv->nomServ, nomServ);
+	
+	if(strcmp(nomServ,"servIntegr"))
+		system(creerDossier);
 }
 
 void* verrouiller_serveur(void* serv) {

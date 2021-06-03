@@ -73,17 +73,17 @@ void statistiques_module(char* module, int stat){
 	
 	switch(stat){
 		case FICHIER_RECU:
-			ecrire_log("Fichier reçu.",module);
+			ecrire_log(module, "Fichier reçu.");
 			fprintf(fichier,"%d,%s,%s\nNombre de fichiers reçus,\nNombre d'erreurs recontrées,\nDate de la derniere modification",atoi(nb_fr)+1,nb_er,ctime(&now));
 			break;
 			
 		case ERREUR_RECONTRE:
-			ecrire_log("Erreur recontrée.",module);
+			ecrire_log(module, "Erreur recontrée.");
 			fprintf(fichier,"%s,%d,%s\nNombre de fichiers reçus,\nNombre d'erreurs recontrées,\nDate de la derniere modification",nb_fr,atoi(nb_er)+1,ctime(&now));
 			break;
 			
 		default:
-			ecrire_log("Error in -stat- entry!",module);
+			ecrire_log(module, "Error in -stat- entry!");
 			break;
 		
 	}

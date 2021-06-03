@@ -16,11 +16,12 @@ int tube[2];
 int tube_changement[2];
 
 typedef struct tm DATE;
+typedef enum {prod, back} serv;
 
 // Structure d'un élément d'une liste de fichiers :
 
 typedef struct FICHIER {
-	char* nom;
+	char nom[TAILLE_MAX];
 	DATE date;
 } FICHIER;
 
@@ -41,7 +42,7 @@ typedef struct LISTE {
 // Structure d'information:
 typedef struct{
 	FICHIER fichier;
-	char* nom_serveur;
+	serv origine;
 }INFOCHANGE;
 
 // Prototypes de fonctions :
@@ -50,12 +51,12 @@ LISTE* creer_liste_vide();
 void ajouter_element_liste(LISTE* liste, FICHIER fichier);
 void ajouter_element_liste_milieu(LISTE* liste, FICHIER fichier, int position);
 void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur);
-
 void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomServ);
+
 void supprimer_element_liste(LISTE* liste, int position);
 void modifier_fichier_liste(LISTE* liste, FICHIER fichier);
 
-void lire_fichier (char* nomFichier, LISTE* liste);
+void lire_fichier (char* nomFichier, LISTE* liste, LISTE* liste_changement);
 void afficher_liste(LISTE liste);
 
 #endif

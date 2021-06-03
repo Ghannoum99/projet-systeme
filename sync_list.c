@@ -99,7 +99,6 @@ void supprimer_element_liste(LISTE* liste, int position)
 			element_supprimer = element->suivant;
 			element->suivant = element_supprimer->suivant;
 		}
-		free(element_supprimer->fichier.nom);
 		free(element_supprimer);
 		liste->taille--;
 	}
@@ -110,24 +109,28 @@ void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomSer
 	FICHIER fichier;
 	INFOCHANGE infos;
 	time_t temps;
-	char commande[TAILLE_MAX] = "touch ./serveurProd/";
+	char commande[TAILLE_MAX] = "touch ./servProd/";
 	
 	strcat(commande, nomFichier);
 	system(commande);
 	
-	fichier.nom = malloc(strlen(nomFichier) * sizeof(char));
 	strcpy(fichier.nom,nomFichier);
 	temps = time(NULL);
 	fichier.date = *localtime(&temps);
 	ajouter_element_liste(liste,fichier);	
 	
 	infos.fichier = fichier;
-	infos.nom_serveur = nomServeur;
+	
+	if(!strcmp(nomServeur, "servProd"))
+		infos.origine = prod;
+	else
+		infos.origine = back;
+	
 	write(tube[1], &infos, sizeof(INFOCHANGE));
 
 }
 
-void lire_fichier (char* nomFichier, LISTE* liste)
+void lire_fichier (char* nomFichier, LISTE* liste, LISTE* liste_changement)
 {
 	FILE* fichier = NULL;
 	char tampon[TAILLE_MAX] =  "";
@@ -139,23 +142,28 @@ void lire_fichier (char* nomFichier, LISTE* liste)
 	while(fgets(tampon, TAILLE_MAX, fichier) != NULL)
 	{
 		tampon[strlen(tampon) - 1] = '\0';
-		infos.nom = malloc(strlen(tampon) * sizeof(char));
 		strcpy(infos.nom,tampon);
 
 		temps = time(NULL);
 		infos.date = *localtime(&temps);
 		ajouter_element_liste(liste,infos);
+		ajouter_element_liste(liste_changement,infos);
 	}
 	
 	fclose(fichier);
 }
 
 void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur)
-{	
+{		
 	ELEMENT* curseur = liste->deb_liste;
 	time_t temps;
 	FICHIER fichier;
 	INFOCHANGE infos;
+	char commande[TAILLE_MAX] = "touch ./servProd/";
+	
+	strcat(commande, nomElement);
+	system(commande);
+	
 	while (strcmp(curseur->fichier.nom, nomElement))
 	{
 		curseur = curseur->suivant;
@@ -169,11 +177,15 @@ void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur)
 	curseur->fichier.date = *localtime(&temps);
 	
 	fichier.date = *localtime(&temps);
-	fichier.nom = malloc(strlen(nomElement) * sizeof(char));
 	strcpy(fichier.nom,nomElement);
 	
 	infos.fichier = fichier;
-	infos.nom_serveur = nomServeur;
+	
+	if(!strcmp(nomServeur, "servProd"))
+		infos.origine = prod;
+	else
+		infos.origine = back;
+		
 	write(tube[1], &infos, sizeof(INFOCHANGE));
 
 }
@@ -217,10 +229,11 @@ void afficher_liste(LISTE liste)
 }
 
 
-int main (void)
+/* int main (void)
 {
 	pid_t PIDProd, PIDBack;	
 	LISTE* liste = creer_liste_vide();
+	LISTE* liste_changement = creer_liste_vide();
 	FICHIER test;
 	
 	if( pipe(tube) == -1 || pipe(tube_changement) == -1)
@@ -237,10 +250,13 @@ int main (void)
 	system("touch ./serveurProd/fichier2.txt");
 		
 	system("ls ./serveurProd > out.txt");
-	lire_fichier("out.txt",liste);
-	system("rm out.txt");	
+	lire_fichier("out.txt",liste, liste_changement);
+	system("rm out.txt");
 	
-	afficher_liste(*liste);
+	
+	//afficher_liste(*liste);
+	
+	copier_liste(liste_changement);
 	
 	PIDProd = fork();
 	
@@ -263,9 +279,7 @@ int main (void)
 		system("touch ./serveurProd/fichier3.txt");
 		ajouter_nouveau_element_liste(liste, "fichier3.txt","ServProd");
 		ecrire_log("sync_list","Ajout de fichier3.txt");
-		
-		afficher_liste(*liste);
-				
+						
 		close(tube[1]);
 	}
 	else if(PIDBack == 0)
@@ -278,35 +292,38 @@ int main (void)
 			modifier_fichier_liste(liste, test);
 		}
 		
+		afficher_liste(*liste);
+
 		close(tube_changement[0]);
 	}
 	else
 	{
 		close(tube[1]);
 		close(tube_changement[0]);
-		LISTE* liste_changement = creer_liste_vide();
 		INFOCHANGE infos;
 		
 		for(int i = 0; i < 2; i++)
 		{
 			read(tube[0],&infos,sizeof(INFOCHANGE));
 			modifier_fichier_liste(liste, infos.fichier);
-			modifier_fichier_liste(liste_changement, infos.fichier);
+			ajouter_element_liste(liste_changement, infos.fichier);
 			if(!strcmp(infos.nom_serveur, "ServProd"))
 			{
 				write(tube_changement[1], &infos.fichier, sizeof(FICHIER));	
 			}
 		}
 		
-		copier_liste(liste);
+		printf("coucou\n");
+		afficher_liste(*liste_changement);
+		afficher_liste(*liste);
+		
+		copier_liste(liste_changement);
 		statistiques_module("copy_list",FICHIER_RECU);
 		
 		wait(NULL);
 		
 		close(tube[0]);
 		close(tube_changement[1]);
-		
-		//afficher_liste(*liste);
 					
 		system("ls -l ./serveurProd");
 		system("ls -l ./serveurBack");
@@ -319,5 +336,5 @@ int main (void)
 	}
 	
 	return 0;
-}
+} */
 

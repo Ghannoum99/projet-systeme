@@ -12,7 +12,7 @@
 
 
 // Copier une liste des fichiers dans un répertoire
-void copier_liste(LISTE* liste);
+void copier_liste(LISTE* liste, char* NomSrc);
 
 
 #endif
