@@ -5,7 +5,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-//#include <conio.h>
 
 #include "sync_list.h"
 #include "test_server.h"
