@@ -8,8 +8,7 @@
 //#include <conio.h>
 
 #include "sync_list.h"
-
-
+#include "test_server.h"
 
 // Copier une liste des fichiers dans un répertoire
 void copier_liste(LISTE* liste, char* NomSrc);

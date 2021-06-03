@@ -109,8 +109,10 @@ void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomSer
 	FICHIER fichier;
 	INFOCHANGE infos;
 	time_t temps;
-	char commande[TAILLE_MAX] = "touch ./servProd/";
+	char commande[TAILLE_MAX] = "touch ./";
 	
+	strcat(commande, nomServeur);
+	strcat(commande, "/");
 	strcat(commande, nomFichier);
 	system(commande);
 	
@@ -159,8 +161,10 @@ void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur)
 	time_t temps;
 	FICHIER fichier;
 	INFOCHANGE infos;
-	char commande[TAILLE_MAX] = "touch ./servProd/";
+	char commande[TAILLE_MAX] = "touch ./";
 	
+	strcat(commande, nomServeur);
+	strcat(commande, "/");
 	strcat(commande, nomElement);
 	system(commande);
 	

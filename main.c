@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
 	fcntl(inte_back[0], F_SETFL, O_NONBLOCK);
 	fcntl(inte_prod[0], F_SETFL, O_NONBLOCK);
 	
-	nbRandom = rand()% 10 + 1;
+	nbRandom = rand()% 9 + 2;
 	
 	servProd.pidServ = fork();
 	
@@ -110,7 +110,6 @@ int main(int argc, char* argv[]) {
 			sleep(rand()%3+1);
 			for (i=0; i<nbRandom ; i++)
 			{
-				
 				if(read(inte_prod[0],&donnees,sizeof(FICHIER)) == -1)//Si pas de fichier dans le tube  
 				{
 					nbRandom2 = rand()%2;
@@ -122,7 +121,7 @@ int main(int argc, char* argv[]) {
 						
 					sleep(rand()%3+1);
 				}
-				else//fichier dans le tube
+				else //fichier dans le tube
 				{
 					modifier_fichier_liste(liste, donnees);
 					sleep(rand()%3+1);
@@ -162,16 +161,16 @@ int main(int argc, char* argv[]) {
 					{
 						if(read(inte_back[0],&donnees,sizeof(FICHIER)) == -1)//Si pas de fichier dans le tube  
 						{
-							nbRandom2 = rand()%2;
+							nbRandom2 = rand()%2; nbRandom2 = rand()%2; // On double le rand pour pas avoir la même chose que dans le serveur de Production
 							
 							if(nbRandom2 == 0 || numero == 1)
-								numero = ajouter(numero,nomFichier,liste,"servBack");
+								numero = ajouter(numero,nomFichier,liste,"servBackup");
 							else
-								modifier(rand()%(numero-1)+1,nomFichier,liste,"servBack");
+								modifier(rand()%(numero-1)+1,nomFichier,liste,"servBackup");
 								
 							sleep(rand()%3+1);
 						}
-						else//Si fichier dans le tube
+						else //Si fichier dans le tube
 						{
 							modifier_fichier_liste(liste, donnees);
 							sleep(rand()%3+1);
@@ -202,13 +201,17 @@ int main(int argc, char* argv[]) {
 						modifier_fichier_liste(liste_changement, infos.fichier);
 						
 						if(infos.origine == prod)
+						{
 							write(inte_back[1], &infos.fichier, sizeof(FICHIER));	
+							copier_liste(liste_changement, "./servProd/");
+						}	
 						else
+						{
 							write(inte_prod[1], &infos.fichier, sizeof(FICHIER));	
+							copier_liste(liste_changement, "./servBackup/");
+						}
 					}
-					
-					copier_liste(liste_changement, "./servProd/");
-					
+										
 					wait(&servBackup.pidServ);
 					wait(&servProd.pidServ);
 					
