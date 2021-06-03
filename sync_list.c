@@ -126,7 +126,7 @@ void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomSer
 	else
 		infos.origine = back;
 	
-	write(tube[1], &infos, sizeof(INFOCHANGE));
+	write(vers_inte[1], &infos, sizeof(INFOCHANGE));
 
 }
 
@@ -186,7 +186,7 @@ void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur)
 	else
 		infos.origine = back;
 		
-	write(tube[1], &infos, sizeof(INFOCHANGE));
+	write(vers_inte[1], &infos, sizeof(INFOCHANGE));
 
 }
 void modifier_fichier_liste(LISTE* liste, FICHIER fichier)

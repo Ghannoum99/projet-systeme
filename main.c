@@ -5,20 +5,28 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <semaphore.h>
+#include <fcntl.h>
 
 #include "sync_list.h"
 #include "test_server.h"
 #include "copy_list.h"
 #include "log_stats.h"
 
-int nommer_fichier(char* nom, int numero)
+int nommer_fichier(char* nom, int numero, char* nomServ)
 {
 	char nombre[TAILLE_MAX];
 	
 	sprintf(nombre,"%d",numero);
 	
 	nom[0] = '\0';
-	strcat(nom,"fichier");
+	if(!strcmp(nomServ, "servProd"))
+	{
+		strcat(nom,"fichierP");
+	}
+	else
+	{
+		strcat(nom,"fichierB");
+	}
 	strcat(nom,nombre);
 	strcat(nom,".txt");
 	
@@ -29,10 +37,10 @@ int ajouter (int numero, char* nomFichier, LISTE* liste, char* nomServ)
 {
 	char log[TAILLE_MAX] = "Ajout de ";
 	
-	numero = nommer_fichier(nomFichier,numero);
+	numero = nommer_fichier(nomFichier,numero, nomServ);
 	strcat(log, nomFichier);
 	
-	ajouter_nouveau_element_liste(liste,nomFichier,"servProd");
+	ajouter_nouveau_element_liste(liste,nomFichier,nomServ);
 	ecrire_log("sync_list",log);
 	
 	return numero;
@@ -43,10 +51,10 @@ void modifier (int numero, char* nomFichier, LISTE* liste, char* nomServ)
 {
 	char log[TAILLE_MAX] = "Modification de ";
 	
-	numero = nommer_fichier(nomFichier,numero);
+	numero = nommer_fichier(nomFichier,numero, nomServ);
 	strcat(log, nomFichier);
 	
-	modifier_element_liste (liste,nomFichier, "servProd");
+	modifier_element_liste (liste,nomFichier,nomServ);
 	ecrire_log("sync_list",log);	
 }
 
@@ -66,15 +74,18 @@ int main(int argc, char* argv[]) {
 	initialiser_serveur(&servProd, "servProd");
 	initialiser_serveur(&servBackup, "servBackup");	
 	
-	
 	srand(time(NULL));
 	
-	if( pipe(tube) == -1 || pipe(tube_changement) == -1)
+	if( pipe(vers_inte) == -1 || pipe(inte_back) == -1 || pipe(inte_prod) == -1)
 	{
 		perror("Les tubes ont un problème...");
 		exit(EXIT_FAILURE);
 	}	
-		
+	
+	//rendre le read non bloquant
+	fcntl(inte_back[0], F_SETFL, O_NONBLOCK);
+	fcntl(inte_prod[0], F_SETFL, O_NONBLOCK);
+	
 	nbRandom = rand()% 10 + 1;
 	
 	servProd.pidServ = fork();
@@ -93,24 +104,37 @@ int main(int argc, char* argv[]) {
 			
 			int nbRandom2 = 0;
 			
-			close(tube[0]);
+			close(vers_inte[0]);
+			close(inte_prod[1]);
 			
-			for (i=0; i<nbRandom; i++)
+			sleep(rand()%3+1);
+			for (i=0; i<nbRandom ; i++)
 			{
-				nbRandom2 = rand()%2;
 				
-				if(nbRandom2 == 0 || numero == 1)
-					numero = ajouter(numero,nomFichier,liste,"servProd");
-				else
-					modifier(rand()%(numero-1)+1,nomFichier,liste,"servProd");
+				if(read(inte_prod[0],&donnees,sizeof(FICHIER)) == -1)//Si pas de fichier dans le tube  
+				{
+					nbRandom2 = rand()%2;
 					
-				sleep(rand()%3+1);
+					if(nbRandom2 == 0 || numero == 1)
+						numero = ajouter(numero,nomFichier,liste,"servProd");
+					else
+						modifier(rand()%(numero-1)+1,nomFichier,liste,"servProd");
+						
+					sleep(rand()%3+1);
+				}
+				else//fichier dans le tube
+				{
+					modifier_fichier_liste(liste, donnees);
+					sleep(rand()%3+1);
+				}
 			}
-							
 			printf("Production\n");
 			afficher_liste(*liste);
 			
-			close(tube[1]);
+			
+						
+			close(vers_inte[1]);
+			close(inte_prod[0]);
 			
 			break;
 			
@@ -130,37 +154,57 @@ int main(int argc, char* argv[]) {
 					//pthread_create(&(servBackup.threads[1]),NULL,verrouiller_serveur,(void*) &servBackup);
 					pthread_join(servBackup.threads[1],NULL);
 					
-					close(tube_changement[1]);
+					close(inte_back[1]);
+					close(vers_inte[0]);
 					
-					for(i = 0; i < nbRandom; i++)
+					sleep(rand()%3+1);
+					for (i=0; i<nbRandom; i++)
 					{
-						read(tube_changement[0],&donnees,sizeof(FICHIER));
-						modifier_fichier_liste(liste, donnees);
+						if(read(inte_back[0],&donnees,sizeof(FICHIER)) == -1)//Si pas de fichier dans le tube  
+						{
+							nbRandom2 = rand()%2;
+							
+							if(nbRandom2 == 0 || numero == 1)
+								numero = ajouter(numero,nomFichier,liste,"servBack");
+							else
+								modifier(rand()%(numero-1)+1,nomFichier,liste,"servBack");
+								
+							sleep(rand()%3+1);
+						}
+						else//Si fichier dans le tube
+						{
+							modifier_fichier_liste(liste, donnees);
+							sleep(rand()%3+1);
+						}
+				
 					}
-					
 					printf("Backup\n");
 					afficher_liste(*liste);
-
-					close(tube_changement[0]);
+					
+					close(inte_back[0]);
+					close(vers_inte[1]);
 					
 					break;
 				
 				default : //code du serveur d'intégration
 					printf("[%s] PID <%d>, PPID <%d>\n", servIntegr.nomServ, getpid(), getppid());
 					
-					close(tube[1]);
-					close(tube_changement[0]);
+					close(vers_inte[1]);
+					close(inte_back[0]);
+					close(inte_prod[0]);
 					
 					INFOCHANGE infos;
 					
 					for(i = 0; i < nbRandom; i++)
 					{
-						read(tube[0],&infos,sizeof(INFOCHANGE));
+						read(vers_inte[0],&infos,sizeof(INFOCHANGE));
 						modifier_fichier_liste(liste, infos.fichier);
 						modifier_fichier_liste(liste_changement, infos.fichier);
 						
 						if(infos.origine == prod)
-							write(tube_changement[1], &infos.fichier, sizeof(FICHIER));	
+							write(inte_back[1], &infos.fichier, sizeof(FICHIER));	
+						else
+							write(inte_prod[1], &infos.fichier, sizeof(FICHIER));	
 					}
 					
 					copier_liste(liste_changement, "./servProd/");
@@ -168,8 +212,9 @@ int main(int argc, char* argv[]) {
 					wait(&servBackup.pidServ);
 					wait(&servProd.pidServ);
 					
-					close(tube[0]);
-					close(tube_changement[1]);
+					close(vers_inte[0]);
+					close(inte_back[1]);
+					close(inte_prod[1]);
 								
 					system("ls -l ./servProd");
 					system("ls -l ./servBackup");

@@ -8,12 +8,15 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <pthread.h>
 
 
 #define TAILLE_MAX 100
 
-int tube[2];
-int tube_changement[2];
+int vers_inte[2];
+int inte_prod[2];
+int inte_back[2];
+
 
 typedef struct tm DATE;
 typedef enum {prod, back} serv;
