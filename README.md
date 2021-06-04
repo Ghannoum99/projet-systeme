@@ -3,8 +3,8 @@
 
 ## Auteurs
 * BLAZY Thomas
-* HAMEURY Erwan
 * GHANNOUM Jihad
+* HAMEURY Erwan
 * RAFFIER Alexis
 * VIDAL Antoine
 
