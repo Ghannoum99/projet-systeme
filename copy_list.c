@@ -16,7 +16,8 @@ void copier_liste(LISTE* liste, char* nomSrc)
 		strcat(nomDest, " ./servBackup/");
 	else
 		strcat(nomDest, " ./servProd/");
-		
+	
+	//parcourir la liste des fichiers
 	while(liste->taille != 0)
 	{
 		commande[strlen(commande) - 1] = '\0';
@@ -30,8 +31,10 @@ void copier_liste(LISTE* liste, char* nomSrc)
 		strcat(commande, nomFichier);
 		strcat(commande, nomDest);
 		
+		//Utilisation de l'appel system 'cp' pour copier
 		system(commande);
 		
+		//supprimer la tête de la liste
 		supprimer_element_liste(liste,0);
 	}
 	
