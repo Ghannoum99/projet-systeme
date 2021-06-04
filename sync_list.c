@@ -1,7 +1,4 @@
 #include "sync_list.h"
-#include "log_stats.h"
-#include "copy_list.h"
-
 
 LISTE* creer_liste_vide()
 {
@@ -132,29 +129,6 @@ void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomSer
 
 }
 
-void lire_fichier (char* nomFichier, LISTE* liste, LISTE* liste_changement)
-{
-	FILE* fichier = NULL;
-	char tampon[TAILLE_MAX] =  "";
-	time_t temps;
-	FICHIER infos;
-			
-	fichier = fopen(nomFichier, "r");
-	
-	while(fgets(tampon, TAILLE_MAX, fichier) != NULL)
-	{
-		tampon[strlen(tampon) - 1] = '\0';
-		strcpy(infos.nom,tampon);
-
-		temps = time(NULL);
-		infos.date = *localtime(&temps);
-		ajouter_element_liste(liste,infos);
-		ajouter_element_liste(liste_changement,infos);
-	}
-	
-	fclose(fichier);
-}
-
 void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur)
 {		
 	ELEMENT* curseur = liste->deb_liste;
@@ -209,7 +183,7 @@ void modifier_fichier_liste(LISTE* liste, FICHIER fichier)
 	{
 		ajouter_element_liste(liste, fichier);
 	}
-	else // fichier existant donc on le remplace
+	else  // fichier existant donc on le remplace
 	{
 		supprimer_element_liste(liste,pos);
 		ajouter_element_liste_milieu(liste, fichier,pos);
@@ -231,114 +205,3 @@ void afficher_liste(LISTE liste)
 	printf("\n");
 	
 }
-
-
-/* int main (void)
-{
-	pid_t PIDProd, PIDBack;	
-	LISTE* liste = creer_liste_vide();
-	LISTE* liste_changement = creer_liste_vide();
-	FICHIER test;
-	
-	if( pipe(tube) == -1 || pipe(tube_changement) == -1)
-	{
-		perror("Les tubes ont un problème...");
-		exit(EXIT_FAILURE);
-	}
-	
-	system("mkdir serveurProd");
-	system("mkdir serveurBack");
-	
-
-	system("touch ./serveurProd/fichier1.txt");
-	system("touch ./serveurProd/fichier2.txt");
-		
-	system("ls ./serveurProd > out.txt");
-	lire_fichier("out.txt",liste, liste_changement);
-	system("rm out.txt");
-	
-	
-	//afficher_liste(*liste);
-	
-	copier_liste(liste_changement);
-	
-	PIDProd = fork();
-	
-	if (PIDProd != 0)
-		PIDBack = fork(); 
-		
-	
-	if (PIDProd == 0)
-	{
-		close(tube[0]);
-		
-		sleep(2);
-		
-		system("touch ./serveurProd/fichier1.txt");
-		modifier_element_liste (liste, "fichier1.txt", "ServProd");
-		ecrire_log("sync_list","Modification de fichier1.txt");
-		
-		sleep(3);
-		
-		system("touch ./serveurProd/fichier3.txt");
-		ajouter_nouveau_element_liste(liste, "fichier3.txt","ServProd");
-		ecrire_log("sync_list","Ajout de fichier3.txt");
-						
-		close(tube[1]);
-	}
-	else if(PIDBack == 0)
-	{
-		close(tube_changement[1]);
-		
-		for(int i = 0; i < 2; i++)
-		{
-			read(tube_changement[0],&test,sizeof(FICHIER));
-			modifier_fichier_liste(liste, test);
-		}
-		
-		afficher_liste(*liste);
-
-		close(tube_changement[0]);
-	}
-	else
-	{
-		close(tube[1]);
-		close(tube_changement[0]);
-		INFOCHANGE infos;
-		
-		for(int i = 0; i < 2; i++)
-		{
-			read(tube[0],&infos,sizeof(INFOCHANGE));
-			modifier_fichier_liste(liste, infos.fichier);
-			ajouter_element_liste(liste_changement, infos.fichier);
-			if(!strcmp(infos.nom_serveur, "ServProd"))
-			{
-				write(tube_changement[1], &infos.fichier, sizeof(FICHIER));	
-			}
-		}
-		
-		printf("coucou\n");
-		afficher_liste(*liste_changement);
-		afficher_liste(*liste);
-		
-		copier_liste(liste_changement);
-		statistiques_module("copy_list",FICHIER_RECU);
-		
-		wait(NULL);
-		
-		close(tube[0]);
-		close(tube_changement[1]);
-					
-		system("ls -l ./serveurProd");
-		system("ls -l ./serveurBack");
-		
-		system("rm -r serveurProd");
-		system("rm -r serveurBack");
-	
-		while (liste->taille != 0)
-			supprimer_element_liste(liste,0);
-	}
-	
-	return 0;
-} */
-

@@ -10,7 +10,6 @@
 #define FICHIER_RECU 1
 #define ERREUR_RECONTRE 2
 
-
 void ecrire_log(char* module, char* contenu);
 void statistiques_module(char* module, int stat);
 

@@ -1,9 +1,3 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <pthread.h>
-#include <stdlib.h>
-#include <signal.h>
 #include <fcntl.h>
 
 #include "sync_list.h"
@@ -64,7 +58,6 @@ serveur servIntegr, servProd, servBackup;
 int main(int argc, char* argv[]) {
 	
 	LISTE* liste = creer_liste_vide();
-	LISTE* liste_changement = creer_liste_vide();
 	FICHIER donnees;
 	char nomFichier[TAILLE_MAX] = "";
 	int numero = 1, nbRandom = 0, i = 0;
@@ -86,7 +79,7 @@ int main(int argc, char* argv[]) {
 	fcntl(inte_prod[0], F_SETFL, O_NONBLOCK);
 	fcntl(serv_hs[0], F_SETFL, O_NONBLOCK);
 
-	nbRandom = rand()% 9 + 2;
+	nbRandom = rand()% 9 + 4;
 	
 	servProd.pidServ = fork();
 	
@@ -105,31 +98,17 @@ int main(int argc, char* argv[]) {
 			close(inte_prod[1]);
 			close(serv_hs[0]);
 			
-			/*
-			//printf("Je fais des trucs donc je verrouille %s\n", servProd.nomServ);
-			pthread_create(&(servProd.threads[0]),NULL,verrouiller_serveur,(void*) &servProd);
-			
-			//faire des trucs --> Je veux rien faire si le serveur est verrouillé !
-			//pthread_create(&(servProd.threads[1]),NULL,fct_test,(void*) &servProd);
-			
-			pthread_create(&(servProd.threads[1]), NULL, deverrouiller_serveur, (void*) &servProd);
-			
-			pthread_join(servProd.threads[0],NULL);
-			pthread_join(servProd.threads[1],NULL);
-			//pthread_join(servProd.threads[2],NULL); */
-					
-			
 			sleep(rand()%3+1);
-			for (i=0; i<nbRandom ; i++)
+			for (i=0; i<nbRandom; i++)
 			{
-				/*if(i == nbRandom/2)
+				if(i == nbRandom/2 && nbRandom%2 == 0)
 				{
 					pthread_create(&(servProd.threads[0]),NULL,verrouiller_serveur,(void*) &servProd);
 					servProd.etatServ = pasDispo;
 					write(serv_hs[1],&servProd.etatServ,sizeof(etat));
 					pthread_create(&(servProd.threads[1]), NULL, deverrouiller_serveur, (void*) &servProd);
 					pthread_join(servProd.threads[0],NULL);
-				}*/
+				}
 				
 				if(read(inte_prod[0],&donnees,sizeof(FICHIER)) == -1) //Si pas de fichier dans le tube  
 				{
@@ -151,6 +130,20 @@ int main(int argc, char* argv[]) {
 				servProd.etatServ = dispo;
 				write(serv_hs[1],&servProd.etatServ,sizeof(etat));
 			}
+			
+			write(vers_inte[1], &i, sizeof(int)); // On signale au serveur d'intégration que le serveur de prod est libre
+			
+			while(1)
+			{
+				if(read(inte_prod[0],&donnees,sizeof(FICHIER)) != -1) //On récupère les derniers fichiers
+				{
+					if (strcmp(donnees.nom,"end"))
+						modifier_fichier_liste(liste, donnees);
+					else
+						break;
+				}
+			}
+			
 			printf("Production\n");
 			afficher_liste(*liste);
 			
@@ -171,9 +164,7 @@ int main(int argc, char* argv[]) {
 					exit(EXIT_FAILURE);
 					break;
 			
-				case 0 : //code du serveur de backup
-					printf("[%s] PID <%d>, PPID <%d>\n", servBackup.nomServ, getpid(), getppid());
-					
+				case 0 : //code du serveur de backup					
 					close(inte_back[1]);
 					close(vers_inte[0]);
 					
@@ -191,13 +182,30 @@ int main(int argc, char* argv[]) {
 								
 							sleep(rand()%3+1);
 						}
+						
 						else //Si fichier dans le tube
 						{
-							modifier_fichier_liste(liste, donnees);
-							sleep(rand()%3+1);
+							if (!strcmp(donnees.nom,"end"))
+								break;
+							else
+							{
+								modifier_fichier_liste(liste, donnees);
+								sleep(rand()%3+1);
+							}
 						}
 				
 					}
+					
+					while(1)
+					{
+						if(read(inte_back[0],&donnees,sizeof(FICHIER)) != -1) //On récupère les derniers fichiers
+						{
+							if (strcmp(donnees.nom,"end"))
+								modifier_fichier_liste(liste, donnees);
+							else
+								break;
+						}
+					}			
 					
 					printf("Backup\n");
 					afficher_liste(*liste);
@@ -215,43 +223,78 @@ int main(int argc, char* argv[]) {
 					close(inte_prod[0]);
 					close(serv_hs[1]);
 					
+					LISTE* liste_changementB = creer_liste_vide();
+					LISTE* liste_changementP = creer_liste_vide();
+					LISTE* liste_rattrapage = creer_liste_vide();
+
 					INFOCHANGE infos;
 					etat estDispoProd = dispo, tampon;
+					ELEMENT* curseur;
 					
 					for(i = 0; i < nbRandom; i++)
 					{
 						read(vers_inte[0],&infos,sizeof(INFOCHANGE));
 
 						modifier_fichier_liste(liste, infos.fichier);
-						modifier_fichier_liste(liste_changement, infos.fichier);
+							
+						if(infos.origine == prod)
+							modifier_fichier_liste(liste_changementP, infos.fichier);
+						else
+							modifier_fichier_liste(liste_changementB, infos.fichier);
+							
+
 						statistiques_module("sync_list", FICHIER_RECU);
+						
 						
 						if(read(serv_hs[0],&tampon,sizeof(etat)) != -1)
 							estDispoProd = tampon;
 																			
 						if(estDispoProd != dispo)
+						{
 							statistiques_module("copy_list", ERREUR_RECONTRE);
+							modifier_fichier_liste(liste_rattrapage, infos.fichier);
+						}
 							
-						else if(infos.origine == prod)
+						else 
 						{
-							write(inte_back[1], &infos.fichier, sizeof(FICHIER));
-							copier_liste(liste_changement, "./servProd/");
-
-						}	
-						else
-						{
-							write(inte_prod[1], &infos.fichier, sizeof(FICHIER));	
-							copier_liste(liste_changement, "./servBackup/");
+							if(liste_changementP->taille != 0)
+							{
+								write(inte_back[1], &infos.fichier, sizeof(FICHIER));
+								copier_liste(liste_changementP, "./servProd/");
+							}	
+							if(liste_changementB->taille != 0)
+							{
+								write(inte_prod[1], &infos.fichier, sizeof(FICHIER));
+								copier_liste(liste_changementB, "./servBackup/");
+							}
 						}
 					}
 					
+					read(vers_inte[0],&i,sizeof(int));
+					
+					curseur = liste_rattrapage->deb_liste;
+					while(curseur != NULL)
+					{
+						write(inte_prod[1], &curseur->fichier, sizeof(FICHIER));
+						curseur = curseur->suivant;
+					}
+					copier_liste(liste_rattrapage, "./servBackup/");
+					
+					infos.fichier.nom[0] = '\0';
+					strcat(infos.fichier.nom,"end");
+					write(inte_back[1],&infos.fichier, sizeof(FICHIER));
+					write(inte_prod[1],&infos.fichier, sizeof(FICHIER));
+					
 					wait(&servProd.pidServ);
 					wait(&servBackup.pidServ);
-										
+								
 					close(vers_inte[0]);
 					close(inte_back[1]);
 					close(inte_prod[1]);
 					close(serv_hs[0]);
+					
+					printf("Intégration\n");
+					afficher_liste(*liste);
 							
 					printf("\n--------------- Contenu du serveur de production -------------\n");	
 					system("ls -l ./servProd");
@@ -260,6 +303,9 @@ int main(int argc, char* argv[]) {
 					
 					system("rm -r servProd");
 					system("rm -r servBackup");
+					
+					free(liste_changementP);
+					free(liste_changementB);
 									
 					break;
 			}
@@ -271,7 +317,6 @@ int main(int argc, char* argv[]) {
 		supprimer_element_liste(liste,0);
 	
 	free(liste);
-	free(liste_changement);
 
 	printf("*** Fin du process <%d> ***\n",getpid());
 	

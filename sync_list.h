@@ -5,20 +5,13 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
-#include <pthread.h>
-
-#include "test_server.h"
-
 
 #define TAILLE_MAX 100
 
 int vers_inte[2];
 int inte_prod[2];
 int inte_back[2];
-
 
 typedef struct tm DATE;
 typedef enum {prod, back} serv;
@@ -36,7 +29,6 @@ struct ELEMENT {
 	ELEMENT* suivant;
 };
 
-
 // Structure de liste :
 
 typedef struct LISTE {
@@ -44,7 +36,8 @@ typedef struct LISTE {
 	int taille;
 } LISTE;
 
-// Structure d'information:
+// Structure d'information :
+
 typedef struct{
 	FICHIER fichier;
 	serv origine;
@@ -53,15 +46,15 @@ typedef struct{
 // Prototypes de fonctions :
 
 LISTE* creer_liste_vide();
+
 void ajouter_element_liste(LISTE* liste, FICHIER fichier);
 void ajouter_element_liste_milieu(LISTE* liste, FICHIER fichier, int position);
-void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur);
-void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomServ);
-
 void supprimer_element_liste(LISTE* liste, int position);
 void modifier_fichier_liste(LISTE* liste, FICHIER fichier);
 
-void lire_fichier (char* nomFichier, LISTE* liste, LISTE* liste_changement);
+void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur);
+void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomServ);
+
 void afficher_liste(LISTE liste);
 
 #endif
