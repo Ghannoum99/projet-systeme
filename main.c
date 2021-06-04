@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
 	fcntl(inte_prod[0], F_SETFL, O_NONBLOCK);
 	fcntl(serv_hs[0], F_SETFL, O_NONBLOCK);
 
-	nbRandom = rand()% 9 + 4;
+	nbRandom = rand()% 6 + 5;
 	
 	servProd.pidServ = fork();
 	
@@ -101,13 +101,15 @@ int main(int argc, char* argv[]) {
 			sleep(rand()%3+1);
 			for (i=0; i<nbRandom; i++)
 			{
-				if(i == nbRandom/2 && nbRandom%2 == 0)
+				if(i == nbRandom/2)// && nbRandom%2 == 0)
 				{
 					pthread_create(&(servProd.threads[0]),NULL,verrouiller_serveur,(void*) &servProd);
 					servProd.etatServ = pasDispo;
 					write(serv_hs[1],&servProd.etatServ,sizeof(etat));
 					pthread_create(&(servProd.threads[1]), NULL, deverrouiller_serveur, (void*) &servProd);
 					pthread_join(servProd.threads[0],NULL);
+					servProd.etatServ = dispo;
+					write(serv_hs[1],&servProd.etatServ,sizeof(etat));
 				}
 				
 				if(read(inte_prod[0],&donnees,sizeof(FICHIER)) == -1) //Si pas de fichier dans le tube  
@@ -126,13 +128,8 @@ int main(int argc, char* argv[]) {
 					modifier_fichier_liste(liste, donnees);
 					sleep(rand()%3+1);
 				}
-				
-				servProd.etatServ = dispo;
-				write(serv_hs[1],&servProd.etatServ,sizeof(etat));
 			}
-			
-			write(vers_inte[1], &i, sizeof(int)); // On signale au serveur d'intégration que le serveur de prod est libre
-			
+						
 			while(1)
 			{
 				if(read(inte_prod[0],&donnees,sizeof(FICHIER)) != -1) //On récupère les derniers fichiers
@@ -187,13 +184,8 @@ int main(int argc, char* argv[]) {
 						
 						else //Si fichier dans le tube
 						{
-							if (!strcmp(donnees.nom,"end"))
-								break;
-							else
-							{
-								modifier_fichier_liste(liste, donnees);
-								sleep(rand()%3+1);
-							}
+							modifier_fichier_liste(liste, donnees);
+							sleep(rand()%3+1);
 						}
 				
 					}
@@ -227,7 +219,6 @@ int main(int argc, char* argv[]) {
 					
 					LISTE* liste_changementB = creer_liste_vide();
 					LISTE* liste_changementP = creer_liste_vide();
-					LISTE* liste_rattrapage = creer_liste_vide();
 
 					INFOCHANGE infos;
 					etat estDispoProd = dispo, tampon;
@@ -250,13 +241,9 @@ int main(int argc, char* argv[]) {
 						
 						if(read(serv_hs[0],&tampon,sizeof(etat)) != -1)
 							estDispoProd = tampon;
-																			
+																										
 						if(estDispoProd != dispo)
-						{
 							statistiques_module("copy_list", ERREUR_RECONTRE);
-							modifier_fichier_liste(liste_rattrapage, infos.fichier);
-						}
-							
 						else 
 						{
 							if(liste_changementP->taille != 0)
@@ -265,23 +252,19 @@ int main(int argc, char* argv[]) {
 								copier_liste(liste_changementP, "./servProd/");
 							}	
 							if(liste_changementB->taille != 0)
-							{
-								write(inte_prod[1], &infos.fichier, sizeof(FICHIER));
+							{								
+								curseur = liste_changementB->deb_liste;
+								while (curseur != NULL)
+								{
+									infos.fichier = curseur->fichier;
+									write(inte_prod[1], &infos.fichier, sizeof(FICHIER));
+									curseur = curseur->suivant;
+								}
 								copier_liste(liste_changementB, "./servBackup/");
 							}
 						}
 					}
-					
-					read(vers_inte[0],&i,sizeof(int));
-					
-					curseur = liste_rattrapage->deb_liste;
-					while(curseur != NULL)
-					{
-						write(inte_prod[1], &curseur->fichier, sizeof(FICHIER));
-						curseur = curseur->suivant;
-					}
-					copier_liste(liste_rattrapage, "./servBackup/");
-					
+
 					infos.fichier.nom[0] = '\0';
 					strcat(infos.fichier.nom,"end");
 					write(inte_back[1],&infos.fichier, sizeof(FICHIER));

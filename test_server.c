@@ -27,7 +27,7 @@ void* verrouiller_serveur(void* serv) {
 
 void* deverrouiller_serveur(void* serv) {
 	
-	sleep(rand()%10+1);
+	sleep(rand()%5+1);
 	
 	pthread_mutex_unlock( &( ((serveur*)serv)->mutexServ) );
 	printf("Déverrouillage %s\n", ((serveur*) serv)->nomServ);
