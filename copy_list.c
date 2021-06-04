@@ -31,7 +31,7 @@ void copier_liste(LISTE* liste, char* nomSrc)
 		strcat(commande, nomFichier);
 		strcat(commande, nomDest);
 		
-		//Utilisation de l'appel system 'cp' pour copier
+		//Utilisation de l'appel système 'cp' pour copier
 		system(commande);
 		
 		//supprimer la tête de la liste
