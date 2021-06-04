@@ -1348,3 +1348,57 @@ Fichier reçu. | [copy_list] Fri Jun  4 13:38:18 2021
 
 Modification de fichierP1.txt | [sync_list] Fri Jun  4 13:38:21 2021
 
+Ajout de fichierP1.txt | [sync_list] Fri Jun  4 14:27:46 2021
+
+Fichier reçu. | [sync_list] Fri Jun  4 14:27:46 2021
+
+Ajout de fichierB1.txt | [sync_list] Fri Jun  4 14:27:46 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 14:27:46 2021
+
+Fichier reçu. | [sync_list] Fri Jun  4 14:27:46 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 14:27:46 2021
+
+Modification de fichierB1.txt | [sync_list] Fri Jun  4 14:27:52 2021
+
+Fichier reçu. | [sync_list] Fri Jun  4 14:27:52 2021
+
+Modification de fichierP1.txt | [sync_list] Fri Jun  4 14:27:52 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 14:27:52 2021
+
+Fichier reçu. | [sync_list] Fri Jun  4 14:27:52 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 14:27:52 2021
+
+Modification de fichierB1.txt | [sync_list] Fri Jun  4 14:27:55 2021
+
+Fichier reçu. | [sync_list] Fri Jun  4 14:27:55 2021
+
+Modification de fichierP1.txt | [sync_list] Fri Jun  4 14:27:55 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 14:27:55 2021
+
+Fichier reçu. | [sync_list] Fri Jun  4 14:27:55 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 14:27:55 2021
+
+Ajout de fichierB2.txt | [sync_list] Fri Jun  4 14:27:59 2021
+
+Fichier reçu. | [sync_list] Fri Jun  4 14:27:59 2021
+
+Ajout de fichierP2.txt | [sync_list] Fri Jun  4 14:27:59 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 14:27:59 2021
+
+Fichier reçu. | [sync_list] Fri Jun  4 14:27:59 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 14:27:59 2021
+
+Ajout de fichierP3.txt | [sync_list] Fri Jun  4 14:28:03 2021
+
+Fichier reçu. | [sync_list] Fri Jun  4 14:28:03 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 14:28:03 2021
+

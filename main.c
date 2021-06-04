@@ -247,13 +247,15 @@ int main(int argc, char* argv[]) {
 					
 					wait(&servProd.pidServ);
 					wait(&servBackup.pidServ);
-					
+										
 					close(vers_inte[0]);
 					close(inte_back[1]);
 					close(inte_prod[1]);
 					close(serv_hs[0]);
-								
+							
+					printf("\n--------------- Contenu du serveur de production -------------\n");	
 					system("ls -l ./servProd");
+					printf("\n----------------- Contenu du serveur de backup ---------------\n");	
 					system("ls -l ./servBackup");
 					
 					system("rm -r servProd");
