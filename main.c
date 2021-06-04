@@ -149,9 +149,18 @@ int main(int argc, char* argv[]) {
 			
 				case 0 : //code du serveur de backup
 					printf("[%s] PID <%d>, PPID <%d>\n", servBackup.nomServ, getpid(), getppid());
+
+					printf("Je fais des trucs donc je verrouille %s\n", servBackup.nomServ);
+					pthread_create(&(servBackup.threads[0]),NULL,verrouiller_serveur,(void*) &servBackup);
 					
-					//pthread_create(&(servBackup.threads[1]),NULL,verrouiller_serveur,(void*) &servBackup);
+					//faire des trucs
+					pthread_create(&(servBackup.threads[1]),NULL,fct_test,(void*) &servBackup);
+					
+					pthread_create(&(servBackup.threads[2]), NULL, deverrouiller_serveur, (void*) &servBackup);
+					
+					pthread_join(servBackup.threads[0],NULL);
 					pthread_join(servBackup.threads[1],NULL);
+					pthread_join(servBackup.threads[2],NULL);
 					
 					close(inte_back[1]);
 					close(vers_inte[0]);

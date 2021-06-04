@@ -318,3 +318,31 @@ Ajout de fichier5.txt | [sync_list] Thu Jun  3 14:07:25 2021
 
 Fichier reçu. | [copy_list] Thu Jun  3 14:07:25 2021
 
+Ajout de fichierP1.txt | [sync_list] Fri Jun  4 02:12:38 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 02:12:38 2021
+
+Ajout de fichierP2.txt | [sync_list] Fri Jun  4 02:12:41 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 02:12:41 2021
+
+Ajout de fichierP3.txt | [sync_list] Fri Jun  4 02:12:43 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 02:12:43 2021
+
+Modification de fichierP3.txt | [sync_list] Fri Jun  4 02:12:47 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 02:12:47 2021
+
+Modification de fichierP3.txt | [sync_list] Fri Jun  4 02:12:49 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 02:12:49 2021
+
+Ajout de fichierP4.txt | [sync_list] Fri Jun  4 02:12:52 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 02:12:52 2021
+
+Modification de fichierP1.txt | [sync_list] Fri Jun  4 02:12:54 2021
+
+Fichier reçu. | [copy_list] Fri Jun  4 02:12:54 2021
+

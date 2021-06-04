@@ -9,8 +9,6 @@
 
 #include "test_server.h"
 
-#define TAILLE_MAX 100
-
 extern serveur servIntegr, servProd, servBackup;
 
 //pas sûr que cette fonction serve mais je laisse
@@ -41,28 +39,61 @@ void initialiser_serveur(serveur* serv, char* nomServ) {
 	char creerDossier[TAILLE_MAX] = "mkdir ";
 	
 	strcat(creerDossier,nomServ);
-
+	
 	serv->etatServ = dispo;
 	pthread_mutex_lock(&(serv->mutexServ));
-	serv->nomServ = malloc(sizeof(char) * LONGUEUR_NOM_SERV);
+	pthread_mutex_lock(&(serv->mutexUnlock[0]));
+	pthread_mutex_lock(&(serv->mutexUnlock[1]));
 	strcpy(serv->nomServ, nomServ);
+	serv->nomServ[strlen(serv->nomServ)] = '\0';
 	
+	
+	/*
 	if(strcmp(nomServ,"servIntegr"))
 		system(creerDossier);
+	*/
 }
 
-void* verrouiller_serveur(void* serv) {
-	printf("Verrouillage %s\n", ((serveur*) serv)->nomServ);
+void* fct_test(void* serv) {
+	pthread_mutex_lock(  &( ((serveur*)serv)->mutexUnlock[0]) );
+	printf("C'est chiant cette fonction\n");	
+	pthread_mutex_unlock(  &( ((serveur*)serv)->mutexUnlock[1]) );
+	printf("J'ai envie de dormir\n");
+	
+	printf("J'ai fini mes trucs donc je déverrouille %s\n", servBackup.nomServ);
+	
+	return NULL;
+}
+
+void* verrouiller_serveur(void* serv) {	
+	//~ if( ((serveur*) serv)->etatServ == dispo ) {
+	
+	
+	
+	printf("Verrouillage %s\n",  ((serveur*) serv)->nomServ );
 	((serveur*) serv)->etatServ = pasDispo;
+	
+	
+	pthread_mutex_unlock(  &( ((serveur*)serv)->mutexUnlock[0]) );
 	pthread_mutex_lock(  &( ((serveur*)serv)->mutexServ) );
+	//~ }
+	
 	
 	return NULL;
 }
 
 void* deverrouiller_serveur(void* serv) {
+	
+	sleep(1);
+	
+	pthread_mutex_lock(  &( ((serveur*)serv)->mutexUnlock[1]) );
+	
+	//~ if( ((serveur*) serv)->etatServ == pasDispo ) {
 	pthread_mutex_unlock( &( ((serveur*)serv)->mutexServ) );
 	printf("Déverrouillage %s\n", ((serveur*) serv)->nomServ);
 	((serveur*) serv)->etatServ = dispo;
+	
+	//~ }
 	
 	return NULL;
 }
