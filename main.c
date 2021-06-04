@@ -164,7 +164,9 @@ int main(int argc, char* argv[]) {
 					exit(EXIT_FAILURE);
 					break;
 			
-				case 0 : //code du serveur de backup					
+				case 0 : //code du serveur de backup			
+					printf("[%s] PID <%d>, PPID <%d>\n", servBackup.nomServ, getpid(), getppid());
+		
 					close(inte_back[1]);
 					close(vers_inte[0]);
 					
