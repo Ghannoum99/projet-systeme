@@ -48,10 +48,10 @@ void statistiques_module(char* module, int stat){
 	
 	strcat(nom_fichier,module);
 	strcat(nom_fichier,".txt");
-	
+
 	FILE* fichier = fopen(nom_fichier,"r+");
 	rewind(fichier);
-	
+
 	// On récupère toutes les données
 	for(i = 0; i < TMAX ; i++){
 		nb_fr[i] = fgetc(fichier);

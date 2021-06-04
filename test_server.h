@@ -7,14 +7,16 @@
 #define OUI 1
 #define NON 0
 
+int serv_hs[2];
+
 typedef enum {pasDispo, dispo} etat;
 
 typedef struct {
 	pid_t pidServ;
 	char nomServ[LONGUEUR_NOM_SERV];
 	pthread_mutex_t mutexServ;
-	pthread_mutex_t mutexUnlock[2];
-	pthread_t threads[3];
+	//pthread_mutex_t mutexUnlock[2];
+	pthread_t threads[2];
 	etat etatServ;
 } serveur;
 

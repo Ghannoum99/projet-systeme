@@ -42,39 +42,36 @@ void initialiser_serveur(serveur* serv, char* nomServ) {
 	
 	serv->etatServ = dispo;
 	pthread_mutex_lock(&(serv->mutexServ));
-	pthread_mutex_lock(&(serv->mutexUnlock[0]));
-	pthread_mutex_lock(&(serv->mutexUnlock[1]));
+	//pthread_mutex_lock(&(serv->mutexUnlock[0]));
+	//pthread_mutex_lock(&(serv->mutexUnlock[1]));
 	strcpy(serv->nomServ, nomServ);
 	serv->nomServ[strlen(serv->nomServ)] = '\0';
 	
-	
-	/*
 	if(strcmp(nomServ,"servIntegr"))
 		system(creerDossier);
-	*/
+	
 }
 
+/*
 void* fct_test(void* serv) {
 	pthread_mutex_lock(  &( ((serveur*)serv)->mutexUnlock[0]) );
 	printf("C'est chiant cette fonction\n");	
 	pthread_mutex_unlock(  &( ((serveur*)serv)->mutexUnlock[1]) );
 	printf("J'ai envie de dormir\n");
 	
-	printf("J'ai fini mes trucs donc je déverrouille %s\n", servBackup.nomServ);
+	printf("J'ai fini mes trucs donc je déverrouille %s\n", servProd.nomServ);
 	
 	return NULL;
-}
+}*/
 
 void* verrouiller_serveur(void* serv) {	
 	//~ if( ((serveur*) serv)->etatServ == dispo ) {
 	
-	
-	
-	printf("Verrouillage %s\n",  ((serveur*) serv)->nomServ );
 	((serveur*) serv)->etatServ = pasDispo;
+	printf("Verrouillage %s\n",  ((serveur*) serv)->nomServ);
+
 	
-	
-	pthread_mutex_unlock(  &( ((serveur*)serv)->mutexUnlock[0]) );
+	//pthread_mutex_unlock(  &( ((serveur*)serv)->mutexUnlock[0]) );
 	pthread_mutex_lock(  &( ((serveur*)serv)->mutexServ) );
 	//~ }
 	
@@ -84,9 +81,10 @@ void* verrouiller_serveur(void* serv) {
 
 void* deverrouiller_serveur(void* serv) {
 	
-	sleep(1);
+	sleep(5);
+	//sleep(rand()%10+1);
 	
-	pthread_mutex_lock(  &( ((serveur*)serv)->mutexUnlock[1]) );
+	//pthread_mutex_lock(  &( ((serveur*)serv)->mutexUnlock[1]) );
 	
 	//~ if( ((serveur*) serv)->etatServ == pasDispo ) {
 	pthread_mutex_unlock( &( ((serveur*)serv)->mutexServ) );

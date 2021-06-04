@@ -104,7 +104,7 @@ void supprimer_element_liste(LISTE* liste, int position)
 	}
 }
 
-void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomServeur)
+void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomServeur, etat estDispo)
 {
 	FICHIER fichier;
 	INFOCHANGE infos;
@@ -127,7 +127,7 @@ void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomSer
 		infos.origine = prod;
 	else
 		infos.origine = back;
-	
+		
 	write(vers_inte[1], &infos, sizeof(INFOCHANGE));
 
 }
@@ -155,7 +155,7 @@ void lire_fichier (char* nomFichier, LISTE* liste, LISTE* liste_changement)
 	fclose(fichier);
 }
 
-void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur)
+void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur, etat estDispo)
 {		
 	ELEMENT* curseur = liste->deb_liste;
 	time_t temps;
@@ -189,7 +189,7 @@ void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur)
 		infos.origine = prod;
 	else
 		infos.origine = back;
-		
+			
 	write(vers_inte[1], &infos, sizeof(INFOCHANGE));
 
 }
