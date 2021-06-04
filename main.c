@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
 			sleep(rand()%3+1);
 			for (i=0; i<nbRandom; i++)
 			{
-				if(i == nbRandom/2)// && nbRandom%2 == 0)
+				if(i == 2 && nbRandom%2 == 0) // Le serveur se verrouille
 				{
 					pthread_create(&(servProd.threads[0]),NULL,verrouiller_serveur,(void*) &servProd);
 					servProd.etatServ = pasDispo;
@@ -125,19 +125,26 @@ int main(int argc, char* argv[]) {
 				}
 				else //fichier dans le tube
 				{
-					modifier_fichier_liste(liste, donnees);
-					sleep(rand()%3+1);
-				}
-			}
-						
-			while(1)
-			{
-				if(read(inte_prod[0],&donnees,sizeof(FICHIER)) != -1) //On récupère les derniers fichiers
-				{
-					if (strcmp(donnees.nom,"end"))
+					if(strcmp(donnees.nom,"end"))
 						modifier_fichier_liste(liste, donnees);
 					else
 						break;
+						
+					sleep(rand()%3+1);
+				}
+			}
+			
+			if(strcmp(donnees.nom,"end"))
+			{
+				while(1)
+				{
+					if(read(inte_prod[0],&donnees,sizeof(FICHIER)) != -1) //On récupère les derniers fichiers
+					{
+						if (strcmp(donnees.nom,"end"))
+							modifier_fichier_liste(liste, donnees);
+						else
+							break;
+					}
 				}
 			}
 			
@@ -238,7 +245,7 @@ int main(int argc, char* argv[]) {
 
 						statistiques_module("sync_list", FICHIER_RECU);
 						
-						
+							
 						if(read(serv_hs[0],&tampon,sizeof(etat)) != -1)
 							estDispoProd = tampon;
 																										
@@ -259,6 +266,8 @@ int main(int argc, char* argv[]) {
 									infos.fichier = curseur->fichier;
 									write(inte_prod[1], &infos.fichier, sizeof(FICHIER));
 									curseur = curseur->suivant;
+									if (curseur != NULL)
+										sleep(2);
 								}
 								copier_liste(liste_changementB, "./servBackup/");
 							}
