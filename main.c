@@ -32,28 +32,28 @@ int nommer_fichier(char* nom, int numero, char* nomServ)
 	return numero+1;
 }
 
-int ajouter (int numero, char* nomFichier, LISTE* liste, char* nomServ, etat estDispo)
+int ajouter (int numero, char* nomFichier, LISTE* liste, char* nomServ)
 {
 	char log[TAILLE_MAX] = "Ajout de ";
 	
 	numero = nommer_fichier(nomFichier,numero, nomServ);
 	strcat(log, nomFichier);
 	
-	ajouter_nouveau_element_liste(liste,nomFichier,nomServ, estDispo);
+	ajouter_nouveau_element_liste(liste,nomFichier,nomServ);
 	ecrire_log("sync_list",log);
 	
 	return numero;
 }
 
 
-void modifier (int numero, char* nomFichier, LISTE* liste, char* nomServ, etat estDispo)
+void modifier (int numero, char* nomFichier, LISTE* liste, char* nomServ)
 {
 	char log[TAILLE_MAX] = "Modification de ";
 	
 	numero = nommer_fichier(nomFichier,numero, nomServ);
 	strcat(log, nomFichier);
 	
-	modifier_element_liste (liste,nomFichier,nomServ, estDispo);
+	modifier_element_liste (liste,nomFichier,nomServ);
 	ecrire_log("sync_list",log);	
 }
 
@@ -136,9 +136,9 @@ int main(int argc, char* argv[]) {
 					nbRandom2 = rand()%2;
 					
 					if(nbRandom2 == 0 || numero == 1)
-						numero = ajouter(numero,nomFichier,liste,"servProd", servProd.etatServ);
+						numero = ajouter(numero,nomFichier,liste,"servProd");
 					else
-						modifier(rand()%(numero-1)+1,nomFichier,liste,"servProd", servProd.etatServ);
+						modifier(rand()%(numero-1)+1,nomFichier,liste,"servProd");
 						
 					sleep(rand()%3+1);
 				}
@@ -185,9 +185,9 @@ int main(int argc, char* argv[]) {
 							nbRandom2 = rand()%2; nbRandom2 = rand()%2; // On double le rand pour pas avoir la même chose que dans le serveur de Production
 							
 							if(nbRandom2 == 0 || numero == 1)
-								numero = ajouter(numero,nomFichier,liste,"servBackup", servBackup.etatServ);
+								numero = ajouter(numero,nomFichier,liste,"servBackup");
 							else
-								modifier(rand()%(numero-1)+1,nomFichier,liste,"servBackup", servBackup.etatServ);
+								modifier(rand()%(numero-1)+1,nomFichier,liste,"servBackup");
 								
 							sleep(rand()%3+1);
 						}

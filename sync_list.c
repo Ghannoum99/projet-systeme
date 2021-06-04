@@ -104,7 +104,7 @@ void supprimer_element_liste(LISTE* liste, int position)
 	}
 }
 
-void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomServeur, etat estDispo)
+void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomServeur)
 {
 	FICHIER fichier;
 	INFOCHANGE infos;
@@ -155,7 +155,7 @@ void lire_fichier (char* nomFichier, LISTE* liste, LISTE* liste_changement)
 	fclose(fichier);
 }
 
-void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur, etat estDispo)
+void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur)
 {		
 	ELEMENT* curseur = liste->deb_liste;
 	time_t temps;

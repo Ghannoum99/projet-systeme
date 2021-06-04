@@ -55,8 +55,8 @@ typedef struct{
 LISTE* creer_liste_vide();
 void ajouter_element_liste(LISTE* liste, FICHIER fichier);
 void ajouter_element_liste_milieu(LISTE* liste, FICHIER fichier, int position);
-void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur, etat estDispo);
-void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomServ, etat estDispo);
+void modifier_element_liste (LISTE* liste, char* nomElement, char* nomServeur);
+void ajouter_nouveau_element_liste (LISTE* liste, char* nomFichier, char* nomServ);
 
 void supprimer_element_liste(LISTE* liste, int position);
 void modifier_fichier_liste(LISTE* liste, FICHIER fichier);
