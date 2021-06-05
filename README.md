@@ -22,4 +22,4 @@ gcc -Wall *.c -lpthread -o main
 ./main
 
 ## Avertissement
-Tous les fichiers ".txt" sont nécessaires pour le bon fonctionnement du programme, mêmes vides ou à zéro. Veillez à ne pas les supprimer.
+Tous les fichiers ".txt" sont nécessaires pour le bon fonctionnement du programme, même s'ils sont vides ou à zéro. Veillez à ne pas les supprimer.
