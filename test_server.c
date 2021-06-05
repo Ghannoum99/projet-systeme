@@ -2,6 +2,9 @@
 
 extern serveur servIntegr, servProd, servBackup;
 
+/*******************************/
+/** INITIALISER LES SERVEURS  **/
+/*******************************/	
 void initialiser_serveur(serveur* serv, char* nomServ) {
 	char creerDossier[TAILLE_MAX] = "mkdir ";
 	
@@ -17,6 +20,9 @@ void initialiser_serveur(serveur* serv, char* nomServ) {
 	
 }
 
+/****************************************************/
+/** VERROUILLER UN SERVEUR (DEVIENT INUTILISABLE)  **/
+/****************************************************/	
 void* verrouiller_serveur(void* serv) {	
 	
 	printf("Verrouillage %s\n",  ((serveur*) serv)->nomServ);
@@ -25,6 +31,9 @@ void* verrouiller_serveur(void* serv) {
 	return NULL;
 }
 
+/*******************************/
+/** DEVERROUILLER UN SERVEUR  **/
+/*******************************/	
 void* deverrouiller_serveur(void* serv) {
 	
 	sleep(rand()%5+1);

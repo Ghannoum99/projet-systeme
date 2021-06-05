@@ -1,5 +1,4 @@
 #include "copy_list.h"
-#include "log_stats.h"
 
 /**********************************/
 /** COPIER LA LISTE DES FICHIERS **/

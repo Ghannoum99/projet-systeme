@@ -9,15 +9,18 @@
 
 #define TAILLE_MAX 100
 
+// Tubes de communication entre serveurs
 int vers_inte[2];
 int inte_prod[2];
 int inte_back[2];
 
+// Redéfinition de la structure "tm" pour plus de clarté
 typedef struct tm DATE;
+
+// Enumération binaire pour signifier l'origine du fichier envoyé
 typedef enum {prod, back} serv;
 
-// Structure d'un élément d'une liste de fichiers :
-
+// Structures d'un élément d'une liste de fichiers 
 typedef struct FICHIER {
 	char nom[TAILLE_MAX];
 	DATE date;
@@ -29,21 +32,18 @@ struct ELEMENT {
 	ELEMENT* suivant;
 };
 
-// Structure de liste :
-
+// Structure de liste
 typedef struct LISTE {
 	ELEMENT* deb_liste;
 	int taille;
 } LISTE;
 
-// Structure d'information :
-
+// Structure d'information
 typedef struct{
 	FICHIER fichier;
 	serv origine;
 }INFOCHANGE;
 
-// Prototypes de fonctions :
 
 LISTE* creer_liste_vide();
 
