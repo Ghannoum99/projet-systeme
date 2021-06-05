@@ -32,7 +32,7 @@ void* verrouiller_serveur(void* serv) {
 }
 
 /*******************************/
-/** DEVERROUILLER UN SERVEUR  **/
+/** DÉVERROUILLER UN SERVEUR  **/
 /*******************************/	
 void* deverrouiller_serveur(void* serv) {
 	

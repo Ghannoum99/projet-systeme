@@ -16,7 +16,7 @@
 // Tube pour informer d'une panne de serveur
 int serv_hs[2];
 
-// Enumération binaire définissant l'état du serveur
+// Énumération binaire définissant l'état du serveur
 typedef enum {pasDispo, dispo} etat;
 
 // Structure d'un serveur

@@ -276,7 +276,7 @@ int main(int argc, char* argv[]) {
 							if(liste_changementB->taille != 0)
 							{								
 								curseur = liste_changementB->deb_liste;
-								while (curseur != NULL) // Si le serveur de production tombe en panne, il faut qu'il rattrape les données qu'il a manqué (le serveur de backup assurant la production)
+								while (curseur != NULL) // Si le serveur de production tombe en panne, il faut qu'il rattrape les données qu'il a manquées (le serveur de backup assurant la production)
 								{
 									infos.fichier = curseur->fichier;
 									write(inte_prod[1], &infos.fichier, sizeof(FICHIER)); // On envoie les changements du serveur de backup vers le serveur de production

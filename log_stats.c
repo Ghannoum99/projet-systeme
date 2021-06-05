@@ -1,7 +1,7 @@
 #include "log_stats.h"
 
 /*************************************/
-/** ECRIRE LES LOGS DANS UN FICHIER **/
+/** ÉCRIRE LES LOGS DANS UN FICHIER **/
 /*************************************/	
 void ecrire_log(char* module, char* contenu){
 	FILE* fichier = fopen("log.txt", "a");
@@ -26,7 +26,7 @@ void ecrire_log(char* module, char* contenu){
 }
 
 /*********************************************/
-/** ECRIRE LES STATISTIQUES DANS UN FICHIER **/
+/** ÉCRIRE LES STATISTIQUES DANS UN FICHIER **/
 /*********************************************/	
 void statistiques_module(char* module, int stat){
 	char nom_fichier[12];
